@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. DESIGN.md is the source of truth; keep the two in sync.
+ * Raw values live only in this file. Components use the Tailwind utilities
+ * these tokens generate (bg-surface, text-muted, rounded-card, h-touch, ...).
+ */
+
+:root {
+  --bg: #f7f6f4;
+  --surface: #ffffff;
+  --surface-muted: #efede9;
+  --text: #1c1b19;
+  --text-muted: #6b6862;
+  --border: #dedad3;
+  --accent: #1c1b19;
+  --on-accent: #ffffff;
+  --success: #2f6f4f;
+  --warning: #8a5a00;
+  --danger: #a33a2e;
+  --focus: #3b6fd4;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141312;
+    --surface: #1e1d1b;
+    --surface-muted: #2a2826;
+    --text: #f2f0ec;
+    --text-muted: #a8a49c;
+    --border: #3a3734;
+    --accent: #f2f0ec;
+    --on-accent: #141312;
+    --success: #7cc4a0;
+    --warning: #e0b35c;
+    --danger: #ef8a7d;
+    --focus: #8fb0f0;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  /* Only our tokens exist: Tailwind's default palette is switched off. */
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-focus: var(--focus);
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@theme {
+  /* Spacing: Tailwind's 4px scale (p-1 = 4px, p-4 = 16px) plus named sizes. */
+  --spacing-touch: 44px;   /* minimum touch target */
+  --spacing-bar: 64px;     /* bottom nav height */
+  --spacing-gutter: 16px;  /* page side padding on phones */
+  --container-page: 640px; /* max content width on desktop */
+
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+
+  --shadow-bar: 0 -1px 0 var(--border);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+html {
+  /* 16px base keeps iOS from zooming into inputs. */
+  font-size: 16px;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
