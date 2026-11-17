@@ -41,6 +41,8 @@ saying it isn't connected yet. That's expected. Do step 2 next.
    **Allow new users to sign up**. Only you can log in.
 4. **Create your login.** Go to **Authentication > Users > Add user > Create new user**. Enter your
    email and a password, and tick **Auto Confirm User**.
+   Or, once step 5 is done, run `npm run create-admin` and type them in the terminal.
+   To change the password later, run `npm run create-admin -- --reset`.
 5. **Copy your keys** into `.env.local`:
    - **Project URL**: **Project Settings > Data API**. Paste it into `NEXT_PUBLIC_SUPABASE_URL`.
    - **Publishable key** (`sb_publishable_...`): **Project Settings > API Keys**. Paste it into
