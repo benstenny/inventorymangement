@@ -1,12 +1,31 @@
 # Resale Inventory Manager
 
 ## Purpose
-A simple, fast inventory app for a small clothing resale shop (thrifted/secondhand items
-sold on Depop and Instagram). The user is non-technical, new to selling, and will mostly use
+A simple, fast inventory app for a small clothing resale shop (thrifted Y2K and vintage clothing
+sold on Depop and at flea markets). The user is non-technical, new to selling, and will mostly use
 it on her phone while sourcing, photographing and packing. Simplicity and speed of data entry
 matter more than feature count. Build the smallest thing that works, then add only what real use asks for.
 
 Two views of one app: a phone PWA (primary) and a desktop web view (same routes, more room).
+
+## The shop (from her business plan, Nov 2026)
+- Sells on **Depop** and at **flea markets** (paid in person by Venmo, Zelle or cash). Not Instagram for now.
+- Sources from Thrift Vintage Fashion, OC Rag House, Goodwill, Salvation Army. About 1 hour and
+  up to 20 lb per trip.
+- Stores items in Costco bins labelled by type (Tops bin, Bottoms bin).
+- 2.5 to 4.5 hours a week in total, so every screen must be quick. The first three months are
+  about learning the market, not volume.
+- Money: $130/month for stock, $70/month for upkeep (supplies, laundromat). Wants profit per item
+  and per month as detailed reports, including supplies and other expenses.
+- Prep: washes at a laundromat, steams at home, photographs on a mannequin, 3 photos per item
+  (front, back, styled). Wants a per-item checklist: washed, measured, photographed, listed.
+- Doesn't know how to measure clothes yet: the app shows a short guide next to each measurement.
+- Pricing: gut feel plus research. Lowest price she'll take is about $10. Haggles $1-2, max $3.
+  Wants a suggested minimum price per item and a nudge to lower prices after 30 days unsold.
+- Shipping: packs at home, drops at the post office, ships within 3-5 days of a sale.
+  All sales are final; she photographs each item before sealing the package, as proof.
+- Doesn't want copy-paste listing text.
+- Shop name, logo and style aren't decided yet. Keep the look neutral until they are.
 
 ## Tech Stack
 - Next.js (App Router) + TypeScript, Tailwind CSS, installable PWA
@@ -18,50 +37,65 @@ Two views of one app: a phone PWA (primary) and a desktop web view (same routes,
   hitting `/api/health`.
 
 ## Out of Scope
-Direct marketplace API integrations (Depop's API is partner-only; Instagram's does not track sales),
-multi-user accounts, payments, tax reporting, offline mode (assume constant internet).
-Depop and Instagram are labels on an item, not integrations.
+Direct marketplace API integrations (Depop's API is partner-only), multi-user accounts, payments,
+tax reporting, offline mode (assume constant internet), returns (all sales are final),
+copy-paste listing text. Depop and flea market are labels on an item, not integrations.
 
-## Data Model (v1: keep it flat)
-One `items` table:
+## Data Model (keep it flat)
+`items` table:
 - id, sku (auto, short, e.g. "TOP-0042", prefix from category, never reused)
-- title, brand, category (from a managed list), size, color, condition, description
-- photo (one compressed image in Supabase Storage)
+- title, brand, category (from a managed list), size, color, condition, description, flaws
+- measurements (jsonb, inches; which ones depend on the category, see `lib/items/measurements.ts`)
+- photos: photo_front_path, photo_back_path, photo_styled_path (compressed, in Supabase Storage)
+- washed (bool): the one prep step that can't be worked out from other fields
 - source, sourceCost (cents), acquiredDate, storageLocation
-- status: SOURCED | NEEDS_PHOTOS | LISTED | SOLD | SHIPPED | RETURNED
-- listedOn: DEPOP | INSTAGRAM | BOTH, listPrice (cents), listedDate
-- Sale fields, empty until sold: soldPlatform, soldPrice, soldDate, platformFees, shippingCost (all cents), buyerNotes
+- status: SOURCED | NEEDS_PHOTOS | LISTED | SOLD | SHIPPED (RETURNED exists but has no UI: final sale)
+- listedOn: DEPOP | FLEA_MARKET | BOTH, listPrice (cents), listedDate
+- Sale fields, empty until sold: soldPlatform (DEPOP | FLEA_MARKET), soldPrice, soldDate,
+  platformFees, shippingCost (all cents), paymentMethod (VENMO | ZELLE | CASH | DEPOP), buyerNotes
+- Shipping: shippedDate, shipProofPath (photo taken before sealing the package)
 - archivedAt (soft delete; never hard-delete items with sale history)
 
-A small `settings` table: fee presets per platform (Instagram 0%; Depop is a preset, never hardcoded),
-stale-days threshold, last-used defaults.
+`expenses` table: spentOn, kind (SUPPLIES | UPKEEP | OTHER), amount (cents), note.
+What she paid for items is not an expense; it lives on the item.
+
+`settings` (one row): fee presets per platform (flea market 0%; Depop is a preset, never hardcoded),
+stale_days (30), min_price (cents, $10), haggle_room (cents, $3), ship_within_days (5),
+inventory_budget and upkeep_budget (cents per month), sources and storage_spots (suggestion lists),
+last-used defaults.
 
 Derived, never stored: profit = soldPrice - sourceCost - platformFees - shippingCost,
-margin %, days-to-sell, days-in-stock.
+margin %, days-to-sell, days-in-stock, prep checklist (washed / measured / photographed / listed),
+suggested minimum price, ship-by date, monthly totals.
 
 ## Build Phases
 Version 1 (build in this order)
-1. Skeleton: Next.js, Supabase connection, RLS, admin login, `/api/health`, deploy-ready, README, `.env.example`
-2. Add/edit item with one compressed photo, title, cost, storage spot ("More details" collapsed)
-3. Inventory list: search, status filter, one-tap status changes
-4. Mark as sold: price, fees (auto from preset), shipping, profit shown immediately,
-   plus a "take it down on the other platform" reminder
-5. Copy listing text (title, brand, size, condition, description, flaws)
-6. Small summary page: items in stock, money in, profit. CSV export button (monthly backup).
+1. Skeleton: Next.js, Supabase connection, RLS, admin login, `/api/health`, deploy-ready, README,
+   `.env.example` (done)
+2. Add/edit item (done), then updated for the business plan: 3 photos (front, back, styled),
+   measurements with a how-to guide, flaws, washed, prep checklist, suggested minimum price,
+   source and storage-spot suggestions
+3. Inventory list: search, filters (all, needs photos, listed, unsold 30+ days), one-tap status
+   changes, prep checklist at a glance
+4. Mark as sold: platform, price, fees (auto from preset), shipping, payment method at markets,
+   profit shown immediately, plus a "take it down from Depop" reminder after a flea-market sale
+5. Pack today: sold but not shipped, oldest first, with ship-by date; take a proof photo, then mark shipped
+6. Money: add an expense, monthly report (sales, item costs, fees, shipping, expenses, profit,
+   per-item table, spend vs budget), CSV export (monthly backup)
 
 Version 1.1 (only after she has used v1 for a few weeks)
 - Enter a whole shopping trip at once, splitting total cost across items
-- Per-platform fee presets editor
-- Stale-listing reminders
+- Settings screen: fee presets, minimum price, haggle room, budgets, sources, storage spots
 - CSV import
 
-Later, only if asked: floor price and pricing notes, prep flags, returns workflow, supplies expenses,
-best/worst brand and category stats, multiple photos per item, n8n digests and automated backups.
+Later, only if asked: shop branding (once she picks a name and style), Instagram as a platform,
+best/worst brand and category stats, n8n digests and automated backups.
 
 ## Photos
 - Resize on the device before upload: ~1600px long edge, WebP or JPEG ~80%, target 200-400 KB.
   Small canvas-based helper in /lib, no new dependency.
-- These are reference photos. Full-quality originals go to platforms straight from her camera roll.
+- Up to 3 per item: front, back, styled (on the mannequin). Front is the hero in lists.
+- These are reference photos. Full-quality originals go to Depop straight from her camera roll.
 
 ## Conventions
 - Keep components small; business logic lives in /lib, not in components
@@ -70,7 +104,8 @@ best/worst brand and category stats, multiple photos per item, n8n digests and a
 - Prefer server actions / route handlers over client-side fetching
 - Never expose the Supabase service role key to the browser (no NEXT_PUBLIC_ prefix); secrets only in env vars
 - No unnecessary dependencies; ask before adding one
-- Write tests for profit calculations and status transitions
+- Write tests for profit calculations, pricing suggestions and status transitions
+- Schema changes go in a new numbered file in `supabase/migrations/`; never edit one that has been run
 
 ## Design
 `DESIGN.md` in the repo root is the source of truth for tokens and components. Read it before any UI work.
@@ -83,7 +118,8 @@ Never hardcode colors, sizes or spacing; use the tokens. The look is neutral unt
 ## UX Rules
 - Every core action takes 3 taps or fewer
 - Forms: sensible defaults, remember last-used values (source, storage spot, platform)
-- Plain-language labels, no jargon
+- Plain-language labels, no jargon. Money words: "cost" (what she paid), "price" (asking),
+  "sold for", "profit"
 
 ## Workflow
 - Small, reviewable steps; run the app and tests after each feature
@@ -91,3 +127,4 @@ Never hardcode colors, sizes or spacing; use the tokens. The look is neutral unt
 - Before big decisions (schema changes, new libraries), explain options briefly
 - Seed script with ~20 realistic sample items
 - Keep README updated with setup, env vars, Supabase setup and Vercel deploy steps
+- Tests: `npm test` (runs through `scripts/vitest.mjs`, which works around a Windows drive-letter bug)

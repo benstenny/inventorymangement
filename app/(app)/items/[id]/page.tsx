@@ -5,8 +5,11 @@ import { z } from "zod";
 import { ArchiveButton } from "@/components/item-form/archive-button";
 import { FormSkeleton } from "@/components/item-form/form-skeleton";
 import { ItemForm } from "@/components/item-form/item-form";
-import { getCategories, getItem, getLastUsed } from "@/lib/items/data";
+import { PrepChecklist } from "@/components/prep-checklist";
+import { getCategories, getFormSettings, getItem } from "@/lib/items/data";
 import { STATUS_LABELS } from "@/lib/items/options";
+import { prepChecklist } from "@/lib/items/prep";
+import { worstCaseFees } from "@/lib/pricing";
 
 export const metadata: Metadata = { title: "Edit item" };
 
@@ -22,19 +25,29 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
 
-  const [found, categories, lastUsed] = await Promise.all([getItem(id), getCategories(), getLastUsed()]);
+  const [found, categories, settings] = await Promise.all([getItem(id), getCategories(), getFormSettings()]);
   if (!found) notFound();
-  const { item, photoUrl } = found;
+  const { item, photoUrls } = found;
 
   // Sold, shipped and returned items keep their status; the form only offers the early ones.
   const editableStatus = ["SOURCED", "NEEDS_PHOTOS", "LISTED"].includes(item.status);
 
+  const checklist = prepChecklist({
+    washed: item.washed,
+    skuPrefix: categories.find((c) => c.id === item.category_id)?.skuPrefix,
+    measurements: item.measurements,
+    photos: { front: item.photo_front_path, back: item.photo_back_path, styled: item.photo_styled_path },
+    status: item.status,
+  });
+
   return (
     <>
-      <div className="mb-4 flex items-baseline justify-between gap-3">
+      <div className="mb-3 flex items-baseline justify-between gap-3">
         <h1 className="text-2xl font-semibold">Edit item</h1>
         <span className="font-mono text-sm text-muted">{item.sku}</span>
       </div>
+
+      <PrepChecklist done={checklist} className="mb-4" />
 
       {item.archived_at && (
         <p className="mb-4 rounded-card border border-border bg-surface p-3 text-sm text-warning">
@@ -44,7 +57,11 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
       <ItemForm
         mode="edit"
         categories={categories}
-        lastPlatform={lastUsed.platform}
+        sources={settings.sources}
+        storageSpots={settings.storageSpots}
+        pricing={settings.pricing}
+        fees={worstCaseFees(settings.feePresets)}
+        lastPlatform={settings.lastUsed.platform}
         lockedStatusLabel={editableStatus ? undefined : STATUS_LABELS[item.status]}
         defaults={{
           id: item.id,
@@ -57,14 +74,20 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
           size: item.size,
           color: item.color,
           condition: item.condition,
+          flaws: item.flaws,
           description: item.description,
+          measurements: item.measurements,
+          washed: item.washed,
           source: item.source,
           acquiredDate: item.acquired_date,
           status: item.status,
           listedOn: item.listed_on,
           listPrice: item.list_price,
-          photoPath: item.photo_path,
-          photoUrl,
+          photos: {
+            front: { path: item.photo_front_path, url: photoUrls.front },
+            back: { path: item.photo_back_path, url: photoUrls.back },
+            styled: { path: item.photo_styled_path, url: photoUrls.styled },
+          },
         }}
       />
 

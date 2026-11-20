@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parseMoneyToCents } from "@/lib/money";
+import { MEASUREMENT_KEYS, measurementField, parseInches, type Measurements } from "./measurements";
 import { CONDITIONS, FORM_STATUSES, LISTED_ON } from "./options";
 
 /**
@@ -34,13 +35,37 @@ const money = (label: string) =>
       return cents;
     });
 
+/** A measurement typed as text ("19.5", "19 1/2") -> inches, or null when blank. */
+const inches = z
+  .string()
+  .optional()
+  .transform((v, ctx) => {
+    const parsed = parseInches(v ?? "");
+    if (parsed === undefined) {
+      ctx.addIssue({ code: "custom", message: "Enter inches, like 19 or 19.5." });
+      return z.NEVER;
+    }
+    return parsed;
+  });
+
 const isoDate = z.iso.date({ message: "Pick a date." });
 
 /** Storage path of an uploaded photo: items/<uuid>.webp or .jpg. Blocks path tricks. */
 export const PHOTO_PATH = /^items\/[0-9a-f-]{36}\.(webp|jpg)$/;
 
+const photoPath = z
+  .string()
+  .trim()
+  .transform((v) => (v === "" ? null : v))
+  .pipe(z.string().regex(PHOTO_PATH, { message: "That photo didn't upload properly. Try again." }).nullable());
+
 /** Turns "" into undefined so optional enums treat an empty select as "not set". */
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
+
+const measurementShape = Object.fromEntries(MEASUREMENT_KEYS.map((key) => [measurementField(key), inches])) as Record<
+  ReturnType<typeof measurementField>,
+  typeof inches
+>;
 
 export const itemFormSchema = z
   .object({
@@ -57,18 +82,23 @@ export const itemFormSchema = z
     size: optionalText(30),
     color: optionalText(40),
     condition: z.preprocess(emptyToUndefined, z.enum(CONDITIONS).optional()).transform((v) => v ?? null),
+    flaws: optionalText(500),
     description: optionalText(2000),
+    washed: z
+      .string()
+      .optional()
+      .transform((v) => v === "on" || v === "true"),
     source: optionalText(80),
     acquiredDate: isoDate,
     status: z.enum(FORM_STATUSES, { message: "Pick a status." }),
     listedOn: z.preprocess(emptyToUndefined, z.enum(LISTED_ON).optional()).transform((v) => v ?? null),
     listPrice: money("the price"),
 
-    photoPath: z
-      .string()
-      .trim()
-      .transform((v) => (v === "" ? null : v))
-      .pipe(z.string().regex(PHOTO_PATH, { message: "That photo didn't upload properly. Try again." }).nullable()),
+    photoFrontPath: photoPath,
+    photoBackPath: photoPath,
+    photoStyledPath: photoPath,
+
+    ...measurementShape,
   })
   .superRefine((item, ctx) => {
     if (item.status === "LISTED" && !item.listedOn) {
@@ -78,6 +108,18 @@ export const itemFormSchema = z
         message: "Pick where it's listed.",
       });
     }
+  })
+  .transform(({ ...item }) => {
+    const measurements: Measurements = {};
+    for (const key of MEASUREMENT_KEYS) {
+      const field = measurementField(key);
+      const value = item[field];
+      delete (item as Partial<typeof item>)[field];
+      if (value !== null) measurements[key] = value;
+    }
+    return { ...item, measurements } as Omit<typeof item, keyof typeof measurementShape> & {
+      measurements: Measurements;
+    };
   });
 
 /** Raw form values, all strings (what the browser sends). */
@@ -96,13 +138,18 @@ export const ITEM_FORM_FIELDS = [
   "size",
   "color",
   "condition",
+  "flaws",
   "description",
+  "washed",
   "source",
   "acquiredDate",
   "status",
   "listedOn",
   "listPrice",
-  "photoPath",
+  "photoFrontPath",
+  "photoBackPath",
+  "photoStyledPath",
+  ...MEASUREMENT_KEYS.map(measurementField),
 ] as const satisfies readonly (keyof ItemFormInput)[];
 
 /** Reads the item fields out of a submitted form. */

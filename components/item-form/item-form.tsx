@@ -6,8 +6,20 @@ import { saveItem, type SaveItemState } from "@/app/(app)/items/actions";
 import { Chips } from "@/components/ui/chips";
 import { Field } from "@/components/ui/field";
 import { inputClass, primaryButtonClass } from "@/components/ui/styles";
-import { centsToInput } from "@/lib/money";
-import { CONDITIONS, FORM_STATUSES, LISTED_ON, LISTED_ON_LABELS, STATUS_LABELS, type ListedOn } from "@/lib/items/options";
+import { centsToInput, formatCents, parseMoneyToCents } from "@/lib/money";
+import { suggestPrices, type FeePreset, type PricingSettings } from "@/lib/pricing";
+import { formatInches, measurementField, measurementsFor, type Measurements } from "@/lib/items/measurements";
+import {
+  CONDITIONS,
+  FORM_STATUSES,
+  LISTED_ON,
+  LISTED_ON_LABELS,
+  PHOTO_SLOTS,
+  PHOTO_SLOT_LABELS,
+  STATUS_LABELS,
+  type ListedOn,
+  type PhotoSlot,
+} from "@/lib/items/options";
 import { formDataToInput, parseItemForm, type FieldErrors } from "@/lib/items/schema";
 import { PhotoPicker } from "./photo-picker";
 
@@ -22,33 +34,45 @@ export type ItemFormDefaults = {
   size?: string | null;
   color?: string | null;
   condition?: string | null;
+  flaws?: string | null;
   description?: string | null;
+  measurements?: Measurements;
+  washed?: boolean;
   source?: string | null;
   acquiredDate?: string;
   status?: string;
   listedOn?: string | null;
   listPrice?: number | null;
-  photoPath?: string | null;
-  photoUrl?: string | null;
+  photos?: Partial<Record<PhotoSlot, { path: string | null; url: string | null }>>;
 };
+
+export type FormCategory = { id: string; name: string; skuPrefix: string };
 
 type Props = {
   mode: "create" | "edit";
-  categories: { id: string; name: string }[];
+  categories: FormCategory[];
   defaults: ItemFormDefaults;
+  /** Suggestions for the "Where you got it" and "Storage spot" fields. */
+  sources: string[];
+  storageSpots: string[];
+  /** For the "lowest to take / list at" hint under the cost. */
+  pricing: PricingSettings;
+  fees: FeePreset;
   /** Platform she used last time, pre-picked when she marks something as listed. */
   lastPlatform?: ListedOn;
   /** Set for sold/shipped/returned items: status is shown, not editable. */
   lockedStatusLabel?: string;
 };
 
-/** Order matters: the first field with an error gets focus. */
-const FIELD_ORDER: (keyof FieldErrors)[] = [
-  "photoPath", "title", "categoryId", "sourceCost", "storageLocation", "brand", "size", "color",
-  "condition", "description", "source", "acquiredDate", "status", "listedOn", "listPrice",
-];
-const DETAIL_FIELDS = new Set<keyof FieldErrors>([
-  "brand", "size", "color", "condition", "description", "source", "acquiredDate", "status", "listedOn", "listPrice",
+const PHOTO_FIELD = {
+  front: "photoFrontPath",
+  back: "photoBackPath",
+  styled: "photoStyledPath",
+} as const satisfies Record<PhotoSlot, keyof FieldErrors>;
+
+/** Fields inside the collapsed "More details" section. */
+const DETAIL_FIELDS = new Set<string>([
+  "brand", "size", "color", "condition", "flaws", "description", "source", "acquiredDate", "status", "listedOn", "listPrice",
 ]);
 
 function localToday() {
@@ -56,12 +80,11 @@ function localToday() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export function ItemForm({ mode, categories, defaults, lastPlatform, lockedStatusLabel }: Props) {
+export function ItemForm({ mode, defaults, lastPlatform, ...rest }: Props) {
   const [state, formAction, pending] = useActionState<SaveItemState, FormData>(saveItem, { savedCount: 0 });
   const [clientErrors, setClientErrors] = useState<FieldErrors | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploads, setUploads] = useState<Record<string, boolean>>({});
   const formRef = useRef<HTMLFormElement>(null);
-  const detailsRef = useRef<HTMLDetailsElement>(null);
 
   // After adding an item, jump back to the top of the fresh form.
   useEffect(() => {
@@ -69,12 +92,16 @@ export function ItemForm({ mode, categories, defaults, lastPlatform, lockedStatu
   }, [mode, state.savedCount]);
 
   const errors = clientErrors ?? state.errors ?? {};
+  const uploading = Object.values(uploads).some(Boolean);
+
+  const handleUploadingChange = useCallback((name: string, isUploading: boolean) => {
+    setUploads((prev) => (prev[name] === isUploading ? prev : { ...prev, [name]: isUploading }));
+  }, []);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const input = formDataToInput(formData);
-    const result = parseItemForm(input);
+    const result = parseItemForm(formDataToInput(formData));
     if (!result.ok) {
       setClientErrors(result.errors);
       focusFirstError(result.errors);
@@ -84,13 +111,18 @@ export function ItemForm({ mode, categories, defaults, lastPlatform, lockedStatu
     startTransition(() => formAction(formData));
   }
 
+  /** Opens the section holding the first error, then focuses it. Form order decides "first". */
   function focusFirstError(fieldErrors: FieldErrors) {
-    const first = FIELD_ORDER.find((f) => fieldErrors[f]);
-    if (!first) return;
-    if (DETAIL_FIELDS.has(first) && detailsRef.current) detailsRef.current.open = true;
-    const el = formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`);
-    el?.focus();
-    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    const form = formRef.current;
+    if (!form) return;
+    const el = [...form.querySelectorAll<HTMLElement>("[name]")].find(
+      (node) => fieldErrors[node.getAttribute("name") as keyof FieldErrors],
+    );
+    if (!el) return;
+    const section = el.closest("details");
+    if (section) section.open = true;
+    el.focus();
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
   // Marking it Listed with no platform yet: pre-pick the one she used last time.
@@ -128,12 +160,10 @@ export function ItemForm({ mode, categories, defaults, lastPlatform, lockedStatu
         key={fieldsKey}
         mode={mode}
         values={values}
-        categories={categories}
         errors={errors}
-        detailsRef={detailsRef}
-        onUploadingChange={setUploading}
+        onUploadingChange={handleUploadingChange}
         onStatusChange={handleStatusChange}
-        lockedStatusLabel={lockedStatusLabel}
+        {...rest}
       />
 
       {/* Space so the last field isn't hidden behind the save bar. */}
@@ -174,15 +204,11 @@ function SaveMessage({ mode, state }: { mode: Props["mode"]; state: SaveItemStat
   );
 }
 
-type FieldsProps = {
-  mode: Props["mode"];
+type FieldsProps = Omit<Props, "defaults" | "lastPlatform"> & {
   values: ItemFormDefaults;
-  categories: Props["categories"];
   errors: FieldErrors;
-  detailsRef: React.RefObject<HTMLDetailsElement | null>;
-  onUploadingChange: (uploading: boolean) => void;
+  onUploadingChange: (name: string, uploading: boolean) => void;
   onStatusChange: (status: string) => void;
-  lockedStatusLabel?: string;
 };
 
 function ItemFields({
@@ -190,28 +216,43 @@ function ItemFields({
   values,
   categories,
   errors,
-  detailsRef,
+  sources,
+  storageSpots,
+  pricing,
+  fees,
   onUploadingChange,
   onStatusChange,
   lockedStatusLabel,
 }: FieldsProps) {
   const dateRef = useRef<HTMLInputElement>(null);
+  const [categoryId, setCategoryId] = useState(values.categoryId ?? "");
+  const [cost, setCost] = useState<number | null>(values.sourceCost ?? null);
 
   // New items default to today in her time zone (the server only knows UTC).
   useEffect(() => {
     if (mode === "create" && dateRef.current && !values.acquiredDate) dateRef.current.value = localToday();
   }, [mode, values.acquiredDate]);
 
-  const hasDetailErrors = [...DETAIL_FIELDS].some((f) => errors[f]);
+  const prefix = categories.find((c) => c.id === categoryId)?.skuPrefix;
+  const guides = measurementsFor(prefix);
+  const hasError = (fields: Iterable<string>) => [...fields].some((f) => errors[f as keyof FieldErrors]);
+  const suggestion = cost === null ? null : suggestPrices(cost, fees, pricing);
 
   return (
     <>
-      <PhotoPicker
-        initialPath={values.photoPath ?? null}
-        initialUrl={values.photoUrl ?? null}
-        error={errors.photoPath}
-        onUploadingChange={onUploadingChange}
-      />
+      <div className="grid grid-cols-3 gap-2">
+        {PHOTO_SLOTS.map((slot) => (
+          <PhotoPicker
+            key={slot}
+            name={PHOTO_FIELD[slot]}
+            label={PHOTO_SLOT_LABELS[slot]}
+            initialPath={values.photos?.[slot]?.path ?? null}
+            initialUrl={values.photos?.[slot]?.url ?? null}
+            error={errors[PHOTO_FIELD[slot]]}
+            onUploadingChange={onUploadingChange}
+          />
+        ))}
+      </div>
 
       <Field label="Title" htmlFor="title" error={errors.title}>
         <input
@@ -219,7 +260,7 @@ function ItemFields({
           name="title"
           defaultValue={values.title}
           autoCapitalize="sentences"
-          placeholder="Levi's 501 jeans"
+          placeholder="Y2K baby tee"
           aria-invalid={errors.title ? true : undefined}
           className={inputClass}
         />
@@ -231,34 +272,89 @@ function ItemFields({
         options={categories.map((c) => ({ value: c.id, label: c.name }))}
         defaultValue={values.categoryId}
         error={errors.categoryId}
+        onChange={setCategoryId}
       />
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Cost" htmlFor="sourceCost" error={errors.sourceCost}>
-          <MoneyInput id="sourceCost" name="sourceCost" cents={values.sourceCost} invalid={!!errors.sourceCost} />
-        </Field>
-        <Field label="Storage spot" htmlFor="storageLocation" error={errors.storageLocation}>
-          <input
-            id="storageLocation"
-            name="storageLocation"
-            defaultValue={values.storageLocation ?? ""}
-            placeholder="Bin B"
-            aria-invalid={errors.storageLocation ? true : undefined}
-            className={inputClass}
-          />
-        </Field>
+      <div className="flex flex-col gap-1">
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Cost" htmlFor="sourceCost" error={errors.sourceCost}>
+            <MoneyInput
+              id="sourceCost"
+              name="sourceCost"
+              cents={values.sourceCost}
+              invalid={!!errors.sourceCost}
+              onCentsChange={setCost}
+            />
+          </Field>
+          <Field label="Storage spot" htmlFor="storageLocation" error={errors.storageLocation}>
+            <SuggestInput
+              id="storageLocation"
+              name="storageLocation"
+              defaultValue={values.storageLocation}
+              suggestions={storageSpots}
+              placeholder="Tops bin"
+              invalid={!!errors.storageLocation}
+            />
+          </Field>
+        </div>
+        {suggestion && (
+          <p className="text-sm text-muted">
+            Lowest to take: <span className="font-medium text-text">{formatCents(suggestion.lowest, { whole: true })}</span>.
+            List at {formatCents(suggestion.listAt, { whole: true })} or more to leave room to haggle.
+          </p>
+        )}
       </div>
 
-      <details ref={detailsRef} open={hasDetailErrors || undefined} className="group rounded-card bg-surface shadow-card">
-        <summary className="flex min-h-touch cursor-pointer list-none items-center gap-2 px-4 font-medium [&::-webkit-details-marker]:hidden">
-          <span aria-hidden className="transition-transform group-open:rotate-90">▸</span>
-          More details
-        </summary>
+      <label className="flex min-h-touch items-center gap-3 rounded-card bg-surface px-4 shadow-card">
+        <input type="checkbox" name="washed" defaultChecked={values.washed} className="size-5 accent-accent" />
+        <span className="font-medium">Washed and steamed</span>
+      </label>
+
+      {guides.length > 0 && (
+        <details
+          open={hasError(guides.map((g) => measurementField(g.key))) || undefined}
+          className="group rounded-card bg-surface shadow-card"
+        >
+          <SectionSummary>
+            Measurements
+            <span className="text-sm font-normal text-muted">
+              {guides.filter((g) => values.measurements?.[g.key] !== undefined).length} of {guides.length}
+            </span>
+          </SectionSummary>
+          <div className="flex flex-col gap-4 px-4 pt-1 pb-5">
+            <p className="text-sm text-muted">Lay it flat, smooth it out, and measure in inches.</p>
+            {guides.map((g) => {
+              const field = measurementField(g.key);
+              return (
+                <Field key={g.key} label={g.label} htmlFor={field} error={errors[field]} hint={g.how}>
+                  <div className="relative w-1/2">
+                    <input
+                      id={field}
+                      name={field}
+                      inputMode="decimal"
+                      autoComplete="off"
+                      defaultValue={formatInches(values.measurements?.[g.key])}
+                      aria-invalid={errors[field] ? true : undefined}
+                      className={`${inputClass} pr-9`}
+                    />
+                    <span aria-hidden className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted">
+                      in
+                    </span>
+                  </div>
+                </Field>
+              );
+            })}
+          </div>
+        </details>
+      )}
+
+      <details open={hasError(DETAIL_FIELDS) || undefined} className="group rounded-card bg-surface shadow-card">
+        <SectionSummary>More details</SectionSummary>
 
         <div className="flex flex-col gap-5 px-4 pt-2 pb-5">
           <div className="grid grid-cols-2 gap-3">
             <TextField name="brand" label="Brand" values={values} errors={errors} />
-            <TextField name="size" label="Size" values={values} errors={errors} placeholder="M, W28, UK 6" />
+            <TextField name="size" label="Size" values={values} errors={errors} placeholder="M, W28, US 8" />
           </div>
           <TextField name="color" label="Color" values={values} errors={errors} />
 
@@ -270,19 +366,39 @@ function ItemFields({
             error={errors.condition}
           />
 
-          <Field label="Description and flaws" htmlFor="description" error={errors.description}>
+          <Field label="Flaws" htmlFor="flaws" error={errors.flaws} hint="Stains, holes, pilling, missing buttons. Photograph them too.">
+            <textarea
+              id="flaws"
+              name="flaws"
+              rows={2}
+              defaultValue={values.flaws ?? ""}
+              placeholder="None"
+              className={`${inputClass} py-2`}
+            />
+          </Field>
+
+          <Field label="Notes" htmlFor="description" error={errors.description}>
             <textarea
               id="description"
               name="description"
-              rows={4}
+              rows={3}
               defaultValue={values.description ?? ""}
-              placeholder="Measurements, fabric, any marks or holes"
+              placeholder="Fabric, era, how it fits"
               className={`${inputClass} py-2`}
             />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <TextField name="source" label="Where you got it" values={values} errors={errors} placeholder="Goodwill" />
+            <Field label="Where you got it" htmlFor="source" error={errors.source}>
+              <SuggestInput
+                id="source"
+                name="source"
+                defaultValue={values.source}
+                suggestions={sources}
+                placeholder="Goodwill"
+                invalid={!!errors.source}
+              />
+            </Field>
             <Field label="Date you got it" htmlFor="acquiredDate" error={errors.acquiredDate}>
               <input
                 ref={dateRef}
@@ -325,12 +441,23 @@ function ItemFields({
             error={errors.listedOn}
           />
 
-          <Field label="List price" htmlFor="listPrice" error={errors.listPrice} className="w-1/2">
+          <Field label="Price" htmlFor="listPrice" error={errors.listPrice} className="w-1/2">
             <MoneyInput id="listPrice" name="listPrice" cents={values.listPrice} invalid={!!errors.listPrice} />
           </Field>
         </div>
       </details>
     </>
+  );
+}
+
+function SectionSummary({ children }: { children: React.ReactNode }) {
+  return (
+    <summary className="flex min-h-touch cursor-pointer list-none items-center gap-2 px-4 font-medium [&::-webkit-details-marker]:hidden">
+      <span aria-hidden className="transition-transform group-open:rotate-90">
+        ▸
+      </span>
+      <span className="flex flex-1 items-center justify-between gap-2">{children}</span>
+    </summary>
   );
 }
 
@@ -341,7 +468,7 @@ function TextField({
   errors,
   placeholder,
 }: {
-  name: "brand" | "size" | "color" | "source";
+  name: "brand" | "size" | "color";
   label: string;
   values: ItemFormDefaults;
   errors: FieldErrors;
@@ -361,7 +488,57 @@ function TextField({
   );
 }
 
-function MoneyInput({ id, name, cents, invalid }: { id: string; name: string; cents?: number | null; invalid: boolean }) {
+/** Free text with the phone's suggestion list (her usual stores, her bins). */
+function SuggestInput({
+  id,
+  name,
+  defaultValue,
+  suggestions,
+  placeholder,
+  invalid,
+}: {
+  id: string;
+  name: string;
+  defaultValue?: string | null;
+  suggestions: string[];
+  placeholder?: string;
+  invalid: boolean;
+}) {
+  const listId = `${id}-suggestions`;
+  return (
+    <>
+      <input
+        id={id}
+        name={name}
+        list={listId}
+        autoComplete="off"
+        defaultValue={defaultValue ?? ""}
+        placeholder={placeholder}
+        aria-invalid={invalid || undefined}
+        className={inputClass}
+      />
+      <datalist id={listId}>
+        {suggestions.map((s) => (
+          <option key={s} value={s} />
+        ))}
+      </datalist>
+    </>
+  );
+}
+
+function MoneyInput({
+  id,
+  name,
+  cents,
+  invalid,
+  onCentsChange,
+}: {
+  id: string;
+  name: string;
+  cents?: number | null;
+  invalid: boolean;
+  onCentsChange?: (cents: number | null) => void;
+}) {
   return (
     <div className="relative">
       <span aria-hidden className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
@@ -376,6 +553,7 @@ function MoneyInput({ id, name, cents, invalid }: { id: string; name: string; ce
         defaultValue={cents === null || cents === undefined ? "" : centsToInput(cents)}
         placeholder="0"
         aria-invalid={invalid || undefined}
+        onChange={onCentsChange && ((e) => onCentsChange(e.target.value.trim() ? parseMoneyToCents(e.target.value) : null))}
         className={`${inputClass} pl-7`}
       />
     </div>

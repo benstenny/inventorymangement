@@ -1,6 +1,6 @@
 # Resale Inventory
 
-A small, fast app for tracking thrifted clothing from sourcing to sale on Depop and Instagram.
+A small, fast app for tracking thrifted clothing from sourcing to sale on Depop and at flea markets.
 Use it on your phone (install it to your home screen) or on a computer. It's the same app on both.
 
 Built with Next.js, Supabase (database, photos, login) and Vercel (hosting), all on free plans.
@@ -38,8 +38,11 @@ saying it isn't connected yet. That's expected. Do step 2 next.
    password (save it in your password manager) and the region closest to you.
 2. **Create the tables.** Open **SQL Editor > New query**. Paste the whole contents of
    [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) and click **Run**.
-   You should see "Success". This creates the items, categories and settings tables, the private
-   photo bucket, and the security rules.
+   You should see "Success". Then do the same with
+   [`supabase/migrations/0002_business_plan.sql`](supabase/migrations/0002_business_plan.sql).
+   Together they create the items, categories, expenses and settings tables, the private photo
+   bucket, and the security rules. Run each file once, in order.
+   **Already set up before?** Just run the files you haven't run yet.
 3. **Turn off sign-ups.** Go to **Authentication > Sign In / Providers** and turn off
    **Allow new users to sign up**. Only you can log in.
 4. **Create your login.** Go to **Authentication > Users > Add user > Create new user**. Enter your
@@ -53,8 +56,9 @@ saying it isn't connected yet. That's expected. Do step 2 next.
    - **Secret key** (`sb_secret_...`): same page. Paste it into `SUPABASE_SECRET_KEY`. Keep this one
      private. It can read and change everything.
 6. **Check the Depop fee.** The database starts with a guess for Depop fees (3.3% + $0.45) and
-   0% for Instagram. Check what Depop actually charges you, then edit it in **Table Editor >
-   settings > fee_presets**. A settings screen for this comes in a later version.
+   0% for flea markets. Check what Depop actually charges you, then edit it in **Table Editor >
+   settings > fee_presets**. The same row holds your lowest price ($10), haggle room ($3), monthly
+   budgets ($130 stock, $70 upkeep), your usual stores and your bins. A settings screen comes later.
 7. **Restart the app** (stop `npm run dev` with Ctrl+C and start it again), then log in.
 
 To check it's connected, open http://localhost:3000/api/health. It should say `{"ok":true,"db":"up"}`.

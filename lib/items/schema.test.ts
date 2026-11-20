@@ -21,7 +21,11 @@ function form(overrides: Record<string, string> = {}): Record<string, string> {
     status: "SOURCED",
     listedOn: "",
     listPrice: "",
-    photoPath: "",
+    photoFrontPath: "",
+    photoBackPath: "",
+    photoStyledPath: "",
+    flaws: "",
+    washed: "",
     ...overrides,
   };
 }
@@ -41,7 +45,10 @@ describe("parseItemForm", () => {
       description: null,
       listedOn: null,
       listPrice: null,
-      photoPath: null,
+      photoFrontPath: null,
+      flaws: null,
+      washed: false,
+      measurements: {},
       status: "SOURCED",
     });
   });
@@ -95,13 +102,15 @@ describe("parseItemForm", () => {
     expect(parseItemForm(form({ condition: "Good" })).ok).toBe(true);
     expect(parseItemForm(form({ condition: "Mint" })).ok).toBe(false);
     expect(parseItemForm(form({ listedOn: "EBAY" })).ok).toBe(false);
+    expect(parseItemForm(form({ listedOn: "INSTAGRAM" })).ok).toBe(false);
+    expect(parseItemForm(form({ listedOn: "FLEA_MARKET" })).ok).toBe(true);
   });
 
   it("accepts real photo paths and blocks anything else", () => {
-    expect(parseItemForm(form({ photoPath: PHOTO })).ok).toBe(true);
-    expect(parseItemForm(form({ photoPath: PHOTO.replace(".webp", ".jpg") })).ok).toBe(true);
+    expect(parseItemForm(form({ photoFrontPath: PHOTO })).ok).toBe(true);
+    expect(parseItemForm(form({ photoFrontPath: PHOTO.replace(".webp", ".jpg") })).ok).toBe(true);
     for (const bad of ["../secret.webp", "items/abc.webp", "other/" + PHOTO.slice(6), PHOTO + ".exe"]) {
-      expect(parseItemForm(form({ photoPath: bad })).ok).toBe(false);
+      expect(parseItemForm(form({ photoStyledPath: bad })).ok).toBe(false);
     }
   });
 
@@ -120,5 +129,31 @@ describe("formDataToInput", () => {
     expect(input.title).toBe("Scarf");
     expect(input.brand).toBe("");
     expect(input).not.toHaveProperty("unexpected");
+  });
+});
+
+describe("measurements, flaws and washed", () => {
+  it("collects filled-in measurements in inches and skips blank ones", () => {
+    const result = parseItemForm(form({ m_waist: "14 1/2", m_inseam: "30", m_rise: "" }));
+    expect(result.ok && result.values.measurements).toEqual({ waist: 14.5, inseam: 30 });
+    expect(result.ok && "m_waist" in result.values).toBe(false);
+  });
+
+  it("points at the measurement it can't read", () => {
+    const result = parseItemForm(form({ m_pitToPit: "big" }));
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.m_pitToPit).toMatch(/inches/);
+  });
+
+  it("reads the washed checkbox", () => {
+    expect(parseItemForm(form({ washed: "on" })).ok && parseItemForm(form({ washed: "on" }))).toMatchObject({
+      values: { washed: true },
+    });
+  });
+
+  it("keeps flaws as text", () => {
+    const result = parseItemForm(form({ flaws: " Small hole near hem " }));
+    expect(result.ok && result.values.flaws).toBe("Small hole near hem");
   });
 });
