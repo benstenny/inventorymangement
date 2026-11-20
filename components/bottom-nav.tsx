@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
-import { BoxIcon, HangerIcon, MoneyIcon, PlusIcon } from "@/components/icons";
+import { BoxIcon, GearIcon, HangerIcon, MoneyIcon, PlusIcon } from "@/components/icons";
 import { LogOutButton } from "@/components/log-out-button";
 
 /**
- * Each tab owns one ink: Inventory purple, Add pink, Pack orange (it's a to-do), Money mint.
+ * Each tab owns one ink: Inventory purple, Add pink, Pack orange (it's a to-do), Money mint,
+ * Settings plum.
  * Pack shows a count of sold items waiting to ship (`packBadge`, rendered on the server).
  * Phone: an iOS tab bar in the thumb zone. Laptop (lg): a sidebar with the same links.
  */
@@ -16,6 +17,7 @@ const links = [
   { href: "/items/new", label: "Add", Icon: PlusIcon, ink: "text-ink-pink", primary: true },
   { href: "/pack", label: "Pack", Icon: BoxIcon, ink: "text-warning" },
   { href: "/summary", label: "Money", Icon: MoneyIcon, ink: "text-ink-aqua" },
+  { href: "/settings", label: "Settings", Icon: GearIcon, ink: "text-text" },
 ] as const;
 
 type NavLink = (typeof links)[number];
@@ -67,7 +69,7 @@ function CurrentSideLinks({ packBadge }: BadgeProps) {
 
 function TabBar({ pathname, packBadge }: { pathname: string | null } & BadgeProps) {
   return (
-    <ul className="mx-auto grid h-bar max-w-page grid-cols-4">
+    <ul className="mx-auto grid h-bar max-w-page grid-cols-5">
       {links.map((link) => (
         <li key={link.href} className="flex">
           <TabLink link={link} active={isActive(pathname, link.href)} badge={link.href === "/pack" ? packBadge : null} />

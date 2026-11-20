@@ -182,31 +182,3 @@ export function centsForCsv(cents: number | null | undefined): string {
   const abs = Math.abs(cents);
   return `${sign}${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, "0")}`;
 }
-
-/** "Change budgets": what she plans to spend each month on stock and on upkeep. */
-export const budgetFormSchema = z.object({
-  inventoryBudget: z
-    .string()
-    .trim()
-    .transform((v, ctx) => {
-      const cents = v === "" ? 0 : parseMoneyToCents(v);
-      if (cents === null) {
-        ctx.addIssue({ code: "custom", message: "Enter an amount, like 130." });
-        return z.NEVER;
-      }
-      return cents;
-    }),
-  upkeepBudget: z
-    .string()
-    .trim()
-    .transform((v, ctx) => {
-      const cents = v === "" ? 0 : parseMoneyToCents(v);
-      if (cents === null) {
-        ctx.addIssue({ code: "custom", message: "Enter an amount, like 70." });
-        return z.NEVER;
-      }
-      return cents;
-    }),
-});
-
-export type BudgetValues = z.output<typeof budgetFormSchema>;

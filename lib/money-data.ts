@@ -6,7 +6,6 @@ import {
   centsForCsv,
   monthRange,
   toCsv,
-  type BudgetValues,
   type ExpenseValues,
   type Month,
   type MonthReport,
@@ -107,15 +106,6 @@ export async function deleteExpense(id: string): Promise<void> {
   const supabase = await createClient();
   const { error } = await supabase.from("expenses").delete().eq("id", id);
   if (error) throw new Error(`Couldn't remove the expense: ${error.message}`);
-}
-
-export async function updateBudgets(values: BudgetValues): Promise<void> {
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("settings")
-    .update({ inventory_budget: values.inventoryBudget, upkeep_budget: values.upkeepBudget })
-    .eq("id", true);
-  if (error) throw new Error(`Couldn't save the budgets: ${error.message}`);
 }
 
 const ITEM_COLUMNS = [

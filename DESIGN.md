@@ -94,7 +94,8 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
 
 - **PageHeader** (`components/page-header.tsx`): 44px nav row (back button "‹ Inventory",
   trailing control such as the SKU), then the bubble large title. Every screen starts with one.
-- **Tab bar / sidebar** (`components/bottom-nav.tsx`): Inventory, Add, Pack, Money. Pack shows an orange
+- **Tab bar / sidebar** (`components/bottom-nav.tsx`): Inventory, Add, Pack, Money, Settings (5 tabs, the
+  iPhone maximum; Settings is plum). Pack shows an orange
   count badge of sold items waiting to ship (`components/pack/pack-badge.tsx`, server-rendered). Add is a pink pill
   and the strongest item. Active tab takes its own ink.
 - **Primary button**: glossy hot-pink pill, white rim, white label. One per screen.
@@ -140,10 +141,16 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
 - **Money** (`/summary`, `components/money/`): ‹ month › switcher; profit card (big pink figure, red
   if a loss, then Sales and each deduction spelled out); Budgets as a meter list (name, "$96 of $130",
   8px bar on a `bg-hairline` track, fill pink -> orange from 90% -> red when over, and "$34 left" /
-  "Over by $22" in words, never color alone), with "Change budgets" folded underneath (stock and
-  upkeep per month, live total); Sold (each sale with its own profit); Expenses with "Add expense"
+  "Over by $22" in words, never color alone), and a "Change budgets" link to
+  `/settings#budgets`, where both are edited; Sold (each sale with its own profit); Expenses with "Add expense"
   (`/summary/expenses/new`: Supplies / Upkeep / Other chips, cost, date, note) and Remove; Backup
-  (Items CSV, Expenses CSV). Background picker and Log out stay at the bottom for now.
+  (Items CSV, Expenses CSV).
+- **Settings** (`/settings`, `components/settings/settings-form.tsx`): Look first (the background picker,
+  applies at once, per device), then the shop rules saved together by one pinned "Save settings":
+  Pricing (lowest price, haggle room, nudge after N days), Fees (percent + fixed per platform),
+  Shipping (ship within N days), Budgets (stock, upkeep, live total), Suggestions (where I shop,
+  storage spots: removable chips plus an add field). Short numbers are compact fields with the
+  unit beside them ("30 days"). Log out at the bottom.
 - **Text box** (`textareaClass`): the input look with card corners; never pill ends on multi-line fields.
 - **Holo sticker** (`holo` class): small tilted label, only for Sold or Shipped.
 - **Empty state**: hanger drawing, one sentence, one hint, the action that fixes it.

@@ -91,7 +91,8 @@ Version 1 (build in this order)
 
 Version 1.1 (only after she has used v1 for a few weeks)
 - Enter a whole shopping trip at once, splitting total cost across items
-- Settings screen: fee presets, minimum price, haggle room, budgets, sources, storage spots
+- Settings screen: fee presets, minimum price, haggle room, budgets, sources, storage spots (done early:
+  Settings tab, plus stale days, ship-within days and the background picker)
 - CSV import
 
 Later, only if asked: shop branding (once she picks a name and style),

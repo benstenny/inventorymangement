@@ -2,11 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { BackgroundPicker } from "@/components/background-picker";
-import { PlusIcon } from "@/components/icons";
+import { ChevronRightIcon, PlusIcon } from "@/components/icons";
 import { ListSkeleton } from "@/components/inventory/list-skeleton";
-import { LogOutButton } from "@/components/log-out-button";
-import { BudgetEditor } from "@/components/money/budget-editor";
 import { BudgetMeters, ExpenseList, MonthNav, ProfitCard, SoldList } from "@/components/money/report";
 import { PageHeader } from "@/components/page-header";
 import { groupClass, secondaryButtonClass } from "@/components/ui/styles";
@@ -44,11 +41,6 @@ export default function SummaryPage({ searchParams }: PageProps<"/summary">) {
           </div>
         </div>
       </section>
-
-      <div className="mt-10">
-        <BackgroundPicker />
-      </div>
-      <LogOutButton className="mx-auto mt-6 w-fit lg:hidden" />
     </div>
   );
 }
@@ -72,11 +64,13 @@ async function Report({ searchParams }: { searchParams: PageProps<"/summary">["s
         </h2>
         <div className={`${groupClass} p-4`}>
           <BudgetMeters stock={report.budgets.stock} upkeep={report.budgets.upkeep} />
-          <BudgetEditor
-            key={`${report.budgets.stock.budget}-${report.budgets.upkeep.budget}`}
-            inventory={report.budgets.stock.budget}
-            upkeep={report.budgets.upkeep.budget}
-          />
+          <Link
+            href="/settings#budgets"
+            className="mt-3 flex min-h-touch w-fit items-center gap-1 font-semibold text-ink-lilac"
+          >
+            Change budgets
+            <ChevronRightIcon size={18} />
+          </Link>
         </div>
       </section>
 

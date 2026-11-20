@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  budgetFormSchema,
   budgetUse,
   buildMonthReport,
   centsForCsv,
@@ -115,19 +114,6 @@ describe("parseExpenseForm", () => {
       expect(result.errors.kind).toBe("Pick what it was for.");
       expect(result.errors.spentOn).toBe("Pick the date.");
     }
-  });
-});
-
-describe("budgetFormSchema", () => {
-  it("accepts a new split, and blank as $0", () => {
-    expect(budgetFormSchema.parse({ inventoryBudget: "150", upkeepBudget: "" })).toEqual({
-      inventoryBudget: 15000,
-      upkeepBudget: 0,
-    });
-  });
-
-  it("rejects amounts it can't read", () => {
-    expect(budgetFormSchema.safeParse({ inventoryBudget: "lots", upkeepBudget: "70" }).success).toBe(false);
   });
 });
 

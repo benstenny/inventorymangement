@@ -3,10 +3,9 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { addExpense, deleteExpense, updateBudgets } from "@/lib/money-data";
+import { addExpense, deleteExpense } from "@/lib/money-data";
 import {
   EXPENSE_FORM_FIELDS,
-  budgetFormSchema,
   monthOf,
   parseExpenseForm,
   type ExpenseFieldErrors,
@@ -32,23 +31,4 @@ export async function deleteExpenseAction(formData: FormData) {
   if (!id.success) return;
   await deleteExpense(id.data);
   refresh();
-}
-
-export type BudgetFormState = { error?: string; saved?: boolean };
-
-/** "Change budgets": how much she plans to spend each month on stock and on upkeep. */
-export async function updateBudgetsAction(_prev: BudgetFormState, formData: FormData): Promise<BudgetFormState> {
-  const parsed = budgetFormSchema.safeParse({
-    inventoryBudget: String(formData.get("inventoryBudget") ?? ""),
-    upkeepBudget: String(formData.get("upkeepBudget") ?? ""),
-  });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Enter amounts like 130." };
-  try {
-    await updateBudgets(parsed.data);
-  } catch (err) {
-    console.error(err);
-    return { error: "Couldn't save. Check your internet connection and try again." };
-  }
-  refresh();
-  return { saved: true };
 }
