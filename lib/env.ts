@@ -47,3 +47,13 @@ export function getPublicEnv(): PublicEnv {
 export function getCronSecret(): string | undefined {
   return process.env.CRON_SECRET || undefined;
 }
+
+/**
+ * Gemini, for "Help me price this". Server only: never give these a NEXT_PUBLIC_ prefix.
+ * Returns null when no key is set, and the price helper says it isn't set up yet.
+ */
+export function getGeminiConfig(): { apiKey: string; model: string } | null {
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  if (!apiKey) return null;
+  return { apiKey, model: process.env.GEMINI_MODEL?.trim() || "gemini-3.8-flash" };
+}

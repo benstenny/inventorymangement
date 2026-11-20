@@ -33,7 +33,9 @@ Two views of one app: a phone PWA (primary) and a desktop web view (same routes,
 - Supabase: Postgres (data), Storage (photos), Auth (single admin login, sign-ups disabled)
 - Supabase JS client with Row Level Security on every table. No ORM unless we agree to add one.
 - Zod for validation, Vitest for tests
-- Hosting: Vercel. Free tiers only.
+- Hosting: Vercel. Free tiers only, with one approved exception: Gemini (paid tier, $5 budget alert, 30 calls/day
+  cap in the app) for "Help me price this", because Google Search grounding isn't on the free tier.
+  Answers are shown verbatim with Google's Search Suggestions and never stored (Google's terms).
 - n8n is NOT part of v1. If the free Supabase project pauses from inactivity, use a Vercel cron
   hitting `/api/health`.
 

@@ -24,6 +24,7 @@ import {
 } from "@/lib/items/options";
 import { formDataToInput, parseItemForm, type FieldErrors } from "@/lib/items/schema";
 import { PhotoPicker } from "./photo-picker";
+import { PriceHelp } from "./price-help";
 
 export type ItemFormDefaults = {
   id?: string;
@@ -466,6 +467,8 @@ function ItemFields({
           <Field label="Price" htmlFor="listPrice" error={errors.listPrice} className="w-1/2">
             <MoneyInput id="listPrice" name="listPrice" cents={values.listPrice} invalid={!!errors.listPrice} />
           </Field>
+
+          <PriceHelp categories={categories} />
         </div>
       </details>
       </div>

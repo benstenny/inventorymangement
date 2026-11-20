@@ -43,7 +43,8 @@ saying it isn't connected yet. That's expected. Do step 2 next.
    [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) and click **Run**.
    You should see "Success". Then do the same with
    [`supabase/migrations/0002_business_plan.sql`](supabase/migrations/0002_business_plan.sql), then
-   [`supabase/migrations/0003_instagram.sql`](supabase/migrations/0003_instagram.sql).
+   [`supabase/migrations/0003_instagram.sql`](supabase/migrations/0003_instagram.sql), then
+   [`supabase/migrations/0004_ai_usage.sql`](supabase/migrations/0004_ai_usage.sql) (the daily cap for price help).
    Together they create the items, categories, expenses and settings tables, the private photo
    bucket, and the security rules. Run each file once, in order.
    **Already set up before?** Just run the files you haven't run yet.
@@ -110,6 +111,25 @@ Once a month, open **Money**, scroll to **Backup**, and download **Items CSV** a
 Keep them somewhere safe (Google Drive, iCloud). They open in Google Sheets, Numbers or Excel, and
 hold every item (sold and archived ones too) and every expense, with money in dollars.
 
+## Price help (optional, Gemini)
+
+"Help me price this" on the item form asks Gemini, with Google Search, what similar items sell for.
+It costs a few cents a month at this shop's volume, but needs a Google billing account.
+
+1. Go to [Google AI Studio](https://aistudio.google.com), sign in, and choose **Get API key** > **Create API key**.
+2. Turn on billing for that project (AI Studio shows a **Set up billing** link). Google Search grounding
+   isn't on the free tier; the paid tier includes 5,000 free searches a month.
+3. In the Google Cloud console for that project: **Billing > Budgets & alerts** > create a budget of **$5**
+   with email alerts, and under **APIs & Services > Credentials**, restrict the key to the
+   **Generative Language API** only.
+4. Paste the key into `.env.local` as `GEMINI_API_KEY=...` (and into Vercel's environment variables
+   when you deploy). Restart the app.
+5. Run [`supabase/migrations/0004_ai_usage.sql`](supabase/migrations/0004_ai_usage.sql) in the Supabase
+   SQL Editor if you haven't. The app then allows at most 30 price checks a day.
+
+Google's terms for Search grounding: the answer is shown exactly as Gemini returns it, with Google's
+search suggestions, and is never saved.
+
 ## Environment variables
 
 | Name | Where it's used | Secret? |
@@ -118,6 +138,8 @@ hold every item (sold and archived ones too) and every expense, with money in do
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | App (browser and server) | No. Security rules block everything until you log in |
 | `SUPABASE_SECRET_KEY` | `npm run seed` only | **Yes**. Never give it a `NEXT_PUBLIC_` prefix |
 | `CRON_SECRET` | `/api/health` on Vercel | Yes |
+| `GEMINI_API_KEY` | "Help me price this" (optional) | **Yes**. Server only, never `NEXT_PUBLIC_` |
+| `GEMINI_MODEL` | Which Gemini model (optional, default `gemini-3.8-flash`) | No |
 
 Older Supabase projects show "anon" and "service_role" keys instead. Those work in the same two slots.
 
