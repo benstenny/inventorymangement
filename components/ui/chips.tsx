@@ -1,6 +1,6 @@
 "use client";
 
-import { labelClass } from "./styles";
+import { chipClass, chipSelectedPeer, labelClass } from "./styles";
 
 type Option = { value: string; label: string };
 
@@ -13,8 +13,7 @@ type Props = {
   onChange?: (value: string) => void;
 };
 
-const chipClass =
-  "flex min-h-touch items-center rounded-pill bg-surface-muted px-4 text-[15px] font-semibold text-text transition-[transform,background-color] duration-150 ease-out-expo active:scale-95 peer-checked:bg-text peer-checked:text-bg peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus";
+const choiceChipClass = `${chipClass} ${chipSelectedPeer} peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus`;
 
 /**
  * Single-choice chips. Native radio buttons underneath, so they work with
@@ -37,7 +36,7 @@ export function Chips({ name, label, options, defaultValue, error, onChange }: P
               aria-describedby={error ? errorId : undefined}
               className="peer absolute inset-0 cursor-pointer opacity-0"
             />
-            <span className={chipClass}>{option.label}</span>
+            <span className={choiceChipClass}>{option.label}</span>
           </label>
         ))}
       </div>
@@ -68,7 +67,7 @@ export function MultiChips({ name, label, options, defaultValues = [], error, hi
               aria-describedby={error ? errorId : undefined}
               className="peer absolute inset-0 cursor-pointer opacity-0"
             />
-            <span className={chipClass}>{option.label}</span>
+            <span className={choiceChipClass}>{option.label}</span>
           </label>
         ))}
       </div>

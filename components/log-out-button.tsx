@@ -7,7 +7,7 @@ export function LogOutButton({ className = "" }: { className?: string }) {
     <form action={logOut} className={className}>
       <button
         type="submit"
-        className="flex min-h-touch w-full items-center gap-3 rounded-control px-3 font-medium text-muted transition-colors hover:bg-surface-muted hover:text-text"
+        className="flex min-h-touch w-full items-center gap-3 rounded-pill px-4 font-medium text-muted transition-colors hover:bg-surface-muted hover:text-text"
       >
         <LogOutIcon size={20} />
         Log out

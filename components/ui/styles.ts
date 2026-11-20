@@ -1,17 +1,32 @@
 /** Shared class names for the components in DESIGN.md. Tokens only, no raw values. */
 
-/** iOS-style filled field: no border at rest, a lilac ring when focused, red ring on error. */
+/**
+ * Text field, from the Y2K kit: a white pill with a pink rim, pink typing.
+ * Focus swaps the rim for the kit's white edge and a pink halo. Red rim on error.
+ * Multi-line fields add `rounded-card` so the corners don't balloon.
+ */
 export const inputClass =
-  "min-h-touch w-full rounded-control border border-transparent bg-surface-muted px-3.5 text-base text-text placeholder:text-muted transition-colors focus:border-ink-lilac focus:bg-surface focus:outline-none aria-invalid:border-danger";
+  "min-h-touch w-full rounded-pill border-2 border-border bg-surface-raised px-4 text-base font-medium text-ink-pink placeholder:text-muted placeholder:font-normal transition-[box-shadow,border-color] duration-150 ease-out-expo focus:border-edge focus:shadow-glow focus:outline-none aria-invalid:border-danger";
 
-/** The one primary action per screen: pink gel. */
+/** The one primary action per screen: the kit's glossy candy pill. */
 export const primaryButtonClass =
-  "flex min-h-[50px] w-full items-center justify-center rounded-control bg-accent px-5 text-[17px] font-semibold text-on-accent shadow-float transition-transform duration-150 ease-out-expo active:scale-[0.97] disabled:opacity-55 disabled:shadow-none";
+  "flex min-h-[50px] w-full items-center justify-center rounded-pill border-2 border-edge bg-accent px-6 text-[17px] font-semibold tracking-[0.01em] text-on-accent shadow-candy transition-transform duration-150 ease-out-expo active:scale-[0.97] active:shadow-pressed disabled:opacity-55 disabled:shadow-pressed";
 
+/** Outline candy: pale pink fill, hot-pink rim, pink label. */
 export const secondaryButtonClass =
-  "flex min-h-touch items-center justify-center rounded-control bg-surface-muted px-4 font-semibold text-text transition-transform duration-150 ease-out-expo active:scale-[0.97] disabled:opacity-55";
+  "flex min-h-touch items-center justify-center rounded-pill border-2 border-ink-pink-glow bg-surface px-5 font-semibold text-ink-pink shadow-pearl transition-transform duration-150 ease-out-expo active:scale-[0.97] active:shadow-pressed disabled:opacity-55";
 
-export const labelClass = "text-[15px] font-semibold";
+/**
+ * Chip and small pill (filters, choices, next-step buttons). White pill with the white
+ * rim and pink label; selected ones turn into glossy candy (add the state variant:
+ * `peer-checked:` for radio/checkbox chips, `aria-pressed:` for toggle buttons).
+ */
+export const chipClass =
+  "flex min-h-touch shrink-0 items-center gap-1.5 rounded-pill border-2 border-edge bg-surface-raised px-4 text-[15px] font-semibold whitespace-nowrap text-ink-pink shadow-pearl transition-[transform,background-color] duration-150 ease-out-expo active:scale-95";
+export const chipSelectedPeer = "peer-checked:bg-accent peer-checked:text-on-accent peer-checked:shadow-gloss";
+export const chipSelectedPressed = "aria-pressed:bg-accent aria-pressed:text-on-accent aria-pressed:shadow-gloss";
 
-/** iOS inset grouped section: a white card on phones, sits on the page. */
-export const groupClass = "rounded-card bg-surface shadow-card ring-1 ring-hairline";
+export const labelClass = "text-[15px] font-semibold text-ink-pink";
+
+/** Grouped section: a pale-pink card on the bubblegum page. */
+export const groupClass = "rounded-card bg-surface shadow-card ring-1 ring-edge";

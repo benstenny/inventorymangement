@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { ItemForm } from "@/components/item-form/item-form";
 import { FormSkeleton } from "@/components/item-form/form-skeleton";
@@ -20,6 +21,9 @@ export default function NewItemPage() {
 }
 
 async function NewItemForm() {
+  // Her settings and the Supabase session are per request (the auth client reads the clock):
+  // never prerender this part.
+  await connection();
   const [categories, settings] = await Promise.all([getCategories(), getFormSettings()]);
   return (
     <ItemForm

@@ -15,7 +15,7 @@ export function LoginForm() {
         <input
           name="email"
           type="email"
-          autoComplete="email"
+          autoComplete="username"
           inputMode="email"
           autoCapitalize="none"
           required

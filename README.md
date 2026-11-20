@@ -24,8 +24,11 @@ cp .env.example .env.local   # on Windows PowerShell: copy .env.example .env.loc
 npm run dev
 ```
 
-**Try it on your phone:** with your phone on the same Wi-Fi, open the "Network" address
-that `npm run dev` prints (like `http://192.168.0.122:3000`).
+**Try it on your phone:** with your phone on the same Wi-Fi, run `npm run dev:phone` instead and
+open the "Network" address it prints, with https (like `https://192.168.0.122:3000`). Newer Safari
+and Chrome switch typed addresses to https, which plain `npm run dev` can't answer. The certificate
+is self-signed, so the phone warns once: Safari > Show Details > visit this website; Chrome >
+Advanced > Proceed.
 
 Open http://localhost:3000. Until Supabase is connected, you'll see the login page with a note
 saying it isn't connected yet. That's expected. Do step 2 next.
@@ -118,6 +121,8 @@ Older Supabase projects show "anon" and "service_role" keys instead. Those work 
 
 ```bash
 npm run dev      # local dev server
+npm run dev:phone # same, over https, for testing on a phone on your Wi-Fi
+node scripts/backgrounds.mjs  # re-make the softened background pictures from bg-images/ (add new ones to the list in the script and lib/backgrounds.ts)
 npm test         # unit tests (Vitest)
 npm run lint     # ESLint
 npm run build    # production build

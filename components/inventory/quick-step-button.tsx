@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { quickStepAction, type QuickStepState } from "@/app/(app)/items/actions";
 import type { NextAction } from "@/lib/items/status";
+import { chipClass } from "@/components/ui/styles";
 
-const pillClass =
-  "relative z-10 flex min-h-touch shrink-0 items-center rounded-pill bg-surface-muted px-4 text-[15px] font-semibold text-ink-lilac transition-transform duration-150 ease-out-expo active:scale-95 disabled:opacity-55";
+const pillClass = `${chipClass} relative z-10 disabled:opacity-55`;
 
 /**
  * The item's next step in the list. "Mark washed" and "Mark listed" save with one tap;

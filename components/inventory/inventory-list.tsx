@@ -3,7 +3,7 @@
 import { useDeferredValue, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { SearchIcon } from "@/components/icons";
-import { groupClass, inputClass } from "@/components/ui/styles";
+import { chipClass, chipSelectedPressed, groupClass, inputClass } from "@/components/ui/styles";
 import { FILTERS, filterCounts, filterItems, filterLabels, type Filter, type ListItem } from "@/lib/items/list";
 import { ItemRow } from "./item-row";
 
@@ -61,7 +61,7 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
   return (
     <>
       <search className="relative">
-        <SearchIcon size={20} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" />
+        <SearchIcon size={20} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-pink" />
         <label htmlFor="inventory-search" className="sr-only">
           Search your items
         </label>
@@ -76,7 +76,7 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
           placeholder="Search title, brand, SKU or bin"
           autoComplete="off"
           enterKeyHint="search"
-          className={`${inputClass} pl-10`}
+          className={`${inputClass} pl-11`}
         />
       </search>
 
@@ -94,7 +94,7 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
               setFilter(f);
               syncUrl({ filter: f, query });
             }}
-            className="flex min-h-touch shrink-0 items-center gap-1.5 rounded-pill bg-surface-muted px-4 text-[15px] font-semibold whitespace-nowrap text-text transition-[transform,background-color] duration-150 ease-out-expo active:scale-95 aria-pressed:bg-text aria-pressed:text-bg"
+            className={`${chipClass} ${chipSelectedPressed}`}
           >
             {labels[f]}
             <span className="tabular font-normal opacity-70">{counts[f]}</span>

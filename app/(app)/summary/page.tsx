@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BackgroundPicker } from "@/components/background-picker";
 import { EmptyState } from "@/components/empty-state";
 import { LogOutButton } from "@/components/log-out-button";
 import { PageHeader } from "@/components/page-header";
@@ -15,7 +16,10 @@ export default function SummaryPage() {
         hint="Every sale counts its fees, shipping and supplies, so the number is what you really made."
         action={{ href: "/items/new", label: "Add item" }}
       />
-      <LogOutButton className="mx-auto mt-10 w-fit lg:hidden" />
+      <div className="mx-auto mt-10 w-full max-w-page">
+        <BackgroundPicker />
+      </div>
+      <LogOutButton className="mx-auto mt-6 w-fit lg:hidden" />
     </div>
   );
 }

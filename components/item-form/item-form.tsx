@@ -387,7 +387,7 @@ function ItemFields({
               rows={2}
               defaultValue={values.flaws ?? ""}
               placeholder="None"
-              className={`${inputClass} py-2`}
+              className={`${inputClass} rounded-card py-2.5`}
             />
           </Field>
 
@@ -398,7 +398,7 @@ function ItemFields({
               rows={3}
               defaultValue={values.description ?? ""}
               placeholder="Fabric, era, how it fits"
-              className={`${inputClass} py-2`}
+              className={`${inputClass} rounded-card py-2.5`}
             />
           </Field>
 
@@ -524,7 +524,7 @@ function WashedToggle({ defaultChecked }: { defaultChecked?: boolean }) {
       />
       <span
         aria-hidden
-        className="relative h-[31px] w-[51px] shrink-0 rounded-pill bg-surface-muted ring-1 ring-hairline transition-colors duration-200 peer-checked:bg-ink-aqua peer-checked:ring-transparent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus after:absolute after:top-[2px] after:left-[2px] after:size-[27px] after:rounded-pill after:bg-surface-raised after:shadow-card after:transition-transform after:duration-200 after:ease-out-expo peer-checked:after:translate-x-5"
+        className="relative h-[31px] w-[51px] shrink-0 rounded-pill border-2 border-border bg-surface-raised shadow-pearl transition-colors duration-200 peer-checked:border-edge peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus after:absolute after:top-[2px] after:left-[2px] after:size-[23px] after:rounded-pill after:bg-border after:transition-[transform,background-color] after:duration-200 after:ease-out-expo peer-checked:after:translate-x-5 peer-checked:after:bg-accent peer-checked:after:shadow-gloss"
       />
     </label>
   );

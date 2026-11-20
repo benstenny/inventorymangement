@@ -4,14 +4,13 @@ import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Log in" };
 
-/** Sign-in sheet: the shop name in bubble letters, the form in the thumb zone. */
+/** Sign-in: the shop name and the form, centred so nothing sits under the keyboard or the home bar. */
 export default function LoginPage() {
   const connected = readPublicEnv() !== null;
 
   return (
-    <main className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-end px-gutter pt-[calc(env(safe-area-inset-top)+64px)] pb-[calc(env(safe-area-inset-bottom)+32px)] sm:justify-center">
-      <h1 className="bubble-title mb-3 text-[52px]">reydiantfinds</h1>
-      <p className="mb-10 text-[17px] text-muted">Your finds, from the rack to the buyer.</p>
+    <main className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center px-gutter pt-[calc(env(safe-area-inset-top)+24px)] pb-[calc(env(safe-area-inset-bottom)+24px)]">
+      <h1 className="bubble-title mb-8 text-[44px]">reydiantfinds</h1>
 
       {!connected && (
         <p className="mb-6 rounded-card bg-surface-muted p-4 text-[15px] font-medium text-warning">
