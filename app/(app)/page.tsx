@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { InventoryList } from "@/components/inventory/inventory-list";
 import { ListSkeleton } from "@/components/inventory/list-skeleton";
@@ -17,6 +18,8 @@ export default function ItemsPage({ searchParams }: PageProps<"/">) {
 }
 
 async function Inventory({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
+  // Her items, today's date and the Supabase session are all per request: never prerender this part.
+  await connection();
   const [params, { items, staleDays }] = await Promise.all([searchParams, getInventory()]);
   const q = typeof params.q === "string" ? params.q.slice(0, 100) : "";
   return <InventoryList items={items} staleDays={staleDays} initialFilter={parseFilter(params.show)} initialQuery={q} />;
