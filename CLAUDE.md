@@ -77,7 +77,7 @@ Version 1 (build in this order)
    measurements with a how-to guide, flaws, washed, prep checklist, suggested minimum price,
    source and storage-spot suggestions
 3. Inventory list: search, filters (all, needs photos, listed, unsold 30+ days), one-tap status
-   changes, prep checklist at a glance
+   changes, prep checklist at a glance (done)
 4. Mark as sold: platform, price, fees (auto from preset), shipping, payment method (Instagram and markets),
    profit shown immediately, plus a reminder to take it down from the other places it was listed
 5. Pack today: sold but not shipped, oldest first, with ship-by date; take a proof photo, then mark shipped

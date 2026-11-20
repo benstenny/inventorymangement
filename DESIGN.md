@@ -86,5 +86,9 @@ Shared class names live in `components/ui/styles.ts`: `inputClass`, `primaryButt
 - **Switch**: iOS switch, aqua when on (see the "Washed and steamed" row).
 - **Photo tile**: 4:5, dashed lilac outline when empty, label badge on glass when filled.
 - **PrepChecklist**: gel ticks (aqua) and open gel circles (muted).
+- **Item row** (`components/inventory/item-row.tsx`): 72px 4:5 photo, title, SKU and bin, pink price
+  over "paid $x", four compact prep marks, and one pill for the next step ("Mark washed", "Mark listed"
+  save on the spot; "Measure", "Add photos", "Add a price" open the item). The whole row opens the item.
+  Listed 30+ days swaps the marks for a warning-coloured nudge to lower the price.
 - **Holo sticker** (`holo` class): small tilted label, only for Sold or Shipped.
 - **Empty state**: hanger drawing, one sentence, one hint, the action that fixes it.

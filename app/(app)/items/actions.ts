@@ -1,8 +1,10 @@
 "use server";
 
+import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { archiveItem, createItem, updateItem } from "@/lib/items/data";
+import { applyQuickStep, archiveItem, createItem, updateItem } from "@/lib/items/data";
+import { QUICK_STEPS } from "@/lib/items/status";
 import { formDataToInput, parseItemForm, type FieldErrors } from "@/lib/items/schema";
 
 export type SaveItemState = {
@@ -48,6 +50,25 @@ export async function saveItem(prev: SaveItemState, formData: FormData): Promise
       carryOver: prev.carryOver,
     };
   }
+}
+
+export type QuickStepState = { error?: string };
+
+const quickStepSchema = z.object({ id: z.uuid(), step: z.enum(QUICK_STEPS) });
+
+/** "Mark washed" / "Mark listed" straight from the inventory list. */
+export async function quickStepAction(_prev: QuickStepState, formData: FormData): Promise<QuickStepState> {
+  const parsed = quickStepSchema.safeParse({ id: formData.get("id"), step: formData.get("step") });
+  if (!parsed.success) return { error: "Something went wrong. Open the item to change it." };
+  try {
+    const result = await applyQuickStep(parsed.data.id, parsed.data.step);
+    if (!result.ok) return { error: result.message };
+  } catch (err) {
+    console.error(err);
+    return { error: "Couldn't save. Check your internet connection and try again." };
+  }
+  refresh();
+  return {};
 }
 
 export async function archiveItemAction(formData: FormData) {

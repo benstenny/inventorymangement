@@ -1,7 +1,10 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { todayIso } from "@/lib/dates";
 import type { FeePresets, PricingSettings } from "@/lib/pricing";
+import { heroPhotoPath, toListItem, type InventoryRow, type ListItem } from "./list";
 import type { Measurements } from "./measurements";
+import { quickStepPatch, type QuickStep, type QuickStepResult } from "./status";
 import { FORM_STATUSES, PHOTO_SLOTS, type PhotoSlot, type Platform, type Status } from "./options";
 import type { ItemFormValues } from "./schema";
 
@@ -111,8 +114,131 @@ export async function signedPhotoUrl(path: string | null): Promise<string | null
   return data?.signedUrl ?? null;
 }
 
+type InventoryQueryRow = Pick<
+  ItemRow,
+  | "id"
+  | "sku"
+  | "title"
+  | "brand"
+  | "size"
+  | "color"
+  | "storage_location"
+  | "measurements"
+  | "washed"
+  | "photo_front_path"
+  | "photo_back_path"
+  | "photo_styled_path"
+  | "source_cost"
+  | "status"
+  | "listed_on"
+  | "list_price"
+  | "listed_date"
+> & {
+  sold_price: number | null;
+  categories: { name: string; sku_prefix: string } | null;
+};
+
+/** Every item that isn't archived, newest first, ready for the inventory list. */
+export async function getInventory(): Promise<{ items: ListItem[]; staleDays: number }> {
+  const supabase = await createClient();
+  const [itemsResult, settingsResult] = await Promise.all([
+    supabase
+      .from("items")
+      .select(
+        "id, sku, title, brand, size, color, storage_location, measurements, washed, photo_front_path, photo_back_path, photo_styled_path, source_cost, status, listed_on, list_price, listed_date, sold_price, categories ( name, sku_prefix )",
+      )
+      .is("archived_at", null)
+      .order("created_at", { ascending: false })
+      .returns<InventoryQueryRow[]>(),
+    supabase.from("settings").select("stale_days").single(),
+  ]);
+  if (itemsResult.error) throw new Error(`Couldn't load your items: ${itemsResult.error.message}`);
+  if (settingsResult.error) throw new Error(`Couldn't load settings: ${settingsResult.error.message}`);
+
+  const rows: InventoryRow[] = itemsResult.data.map((r) => ({
+    id: r.id,
+    sku: r.sku,
+    title: r.title,
+    brand: r.brand,
+    size: r.size,
+    color: r.color,
+    categoryName: r.categories?.name ?? null,
+    skuPrefix: r.categories?.sku_prefix ?? null,
+    storageLocation: r.storage_location,
+    measurements: r.measurements,
+    washed: r.washed,
+    photoFrontPath: r.photo_front_path,
+    photoBackPath: r.photo_back_path,
+    photoStyledPath: r.photo_styled_path,
+    sourceCost: r.source_cost,
+    status: r.status,
+    listedOn: r.listed_on ?? [],
+    listPrice: r.list_price,
+    listedDate: r.listed_date,
+    soldPrice: r.sold_price,
+  }));
+
+  const urls = await signedPhotoUrls(rows.map(heroPhotoPath));
+  const staleDays = settingsResult.data.stale_days;
+  const ctx = { today: today(), staleDays };
+  return { items: rows.map((row, i) => toListItem(row, { ...ctx, photoUrl: urls[i] })), staleDays };
+}
+
+/** Signs many photo paths in one request. Same order as `paths`; null where there's no photo. */
+async function signedPhotoUrls(paths: (string | null)[]): Promise<(string | null)[]> {
+  const wanted = [...new Set(paths.filter((p): p is string => !!p))];
+  if (!wanted.length) return paths.map(() => null);
+  const supabase = await createClient();
+  const { data } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls(wanted, SIGNED_URL_SECONDS);
+  const byPath = new Map((data ?? []).map((d) => [d.path, d.signedUrl]));
+  return paths.map((p) => (p ? (byPath.get(p) ?? null) : null));
+}
+
+/** The one-tap "Mark washed" / "Mark listed" from the inventory list. */
+export async function applyQuickStep(id: string, step: QuickStep): Promise<QuickStepResult> {
+  const supabase = await createClient();
+  const [itemResult, settingsResult] = await Promise.all([
+    supabase
+      .from("items")
+      .select("status, washed, listed_on, listed_date, list_price")
+      .eq("id", id)
+      .single<Pick<ItemRow, "status" | "washed" | "listed_on" | "listed_date" | "list_price">>(),
+    supabase.from("settings").select("last_used").single(),
+  ]);
+  if (itemResult.error) throw new Error(`Couldn't find the item: ${itemResult.error.message}`);
+  const item = itemResult.data;
+
+  const result = quickStepPatch(
+    step,
+    {
+      status: item.status,
+      washed: item.washed,
+      listedOn: item.listed_on ?? [],
+      listedDate: item.listed_date,
+      listPrice: item.list_price,
+    },
+    { today: today(), lastPlatforms: (settingsResult.data?.last_used as LastUsed | undefined)?.platforms },
+  );
+  if (!result.ok) return result;
+
+  const { patch } = result;
+  const { error } = await supabase
+    .from("items")
+    .update({
+      status: patch.status,
+      ...(patch.washed !== undefined ? { washed: patch.washed } : {}),
+      ...(patch.listedOn ? { listed_on: patch.listedOn } : {}),
+      ...(patch.listedDate ? { listed_date: patch.listedDate } : {}),
+    })
+    .eq("id", id)
+    // Only if nothing else changed its status in the meantime.
+    .eq("status", item.status);
+  if (error) throw new Error(`Couldn't update the item: ${error.message}`);
+  return result;
+}
+
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return todayIso();
 }
 
 function toColumns(values: ItemFormValues) {
