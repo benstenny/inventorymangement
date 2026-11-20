@@ -1,14 +1,34 @@
 import type { Metadata } from "next";
-import { EmptyState } from "@/components/empty-state";
+import { Suspense } from "react";
+import { ItemForm } from "@/components/item-form/item-form";
+import { FormSkeleton } from "@/components/item-form/form-skeleton";
+import { getCategories, getLastUsed } from "@/lib/items/data";
 
 export const metadata: Metadata = { title: "Add item" };
 
-// Phase 2 replaces this with the add-item form.
 export default function NewItemPage() {
   return (
     <>
       <h1 className="mb-4 text-2xl font-semibold">Add item</h1>
-      <EmptyState message="Adding items arrives in the next update. Check back soon." />
+      <Suspense fallback={<FormSkeleton />}>
+        <NewItemForm />
+      </Suspense>
     </>
+  );
+}
+
+async function NewItemForm() {
+  const [categories, lastUsed] = await Promise.all([getCategories(), getLastUsed()]);
+  return (
+    <ItemForm
+      mode="create"
+      categories={categories}
+      lastPlatform={lastUsed.platform}
+      defaults={{
+        source: lastUsed.source ?? null,
+        storageLocation: lastUsed.storageLocation ?? null,
+        status: "SOURCED",
+      }}
+    />
   );
 }

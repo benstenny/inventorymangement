@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "node scripts/vitest.mjs run",
+    "test:watch": "node scripts/vitest.mjs",
     "seed": "node --env-file=.env.local scripts/seed.ts",
     "create-admin": "node --env-file=.env.local scripts/create-admin.ts"
   },

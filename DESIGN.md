@@ -50,6 +50,8 @@ inputs, or iOS zooms in), `text-lg` (card titles), `text-2xl` (page titles). Wei
 - `shadow-card` for cards, `shadow-bar` for the bottom nav. Keep shadows light.
 
 ## Components
+Shared class names live in `components/ui/styles.ts` (`inputClass`, `primaryButtonClass`, ...).
+Ready-made pieces: `Field` (label + input + error) and `Chips` (single choice) in `components/ui/`.
 
 ### Button
 - Primary: `bg-accent text-on-accent`, `min-h-touch`, `rounded-control`, `font-medium`, full width on phone.

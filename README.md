@@ -24,6 +24,9 @@ cp .env.example .env.local   # on Windows PowerShell: copy .env.example .env.loc
 npm run dev
 ```
 
+**Try it on your phone:** with your phone on the same Wi-Fi, open the "Network" address
+that `npm run dev` prints (like `http://192.168.0.122:3000`).
+
 Open http://localhost:3000. Until Supabase is connected, you'll see the login page with a note
 saying it isn't connected yet. That's expected. Do step 2 next.
 
