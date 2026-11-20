@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -23,6 +24,9 @@ export default function MarkSoldPage({ params }: PageProps<"/items/[id]/sold">) 
 }
 
 async function MarkSold({ params }: { params: Promise<{ id: string }> }) {
+  // Her item and the Supabase session are per request (the auth client reads the clock):
+  // never prerender this part.
+  await connection();
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
   const found = await getSaleItem(id);
