@@ -54,6 +54,7 @@ const listedLong = make({
 });
 const listedNew = make({ id: "new", ...photos, status: "LISTED", listPrice: 4200, listedDate: "2026-11-10" });
 const sold = make({ id: "sold", status: "SOLD", listedDate: "2026-09-01", soldPrice: 4000 });
+const shipped = make({ id: "shipped", title: "Harley tee", status: "SHIPPED", soldPrice: 5000 });
 const all = [fresh, listedLong, listedNew, sold];
 const ids = (items: { id: string }[]) => items.map((i) => i.id);
 
@@ -87,8 +88,15 @@ describe("heroPhotoPath", () => {
 });
 
 describe("filterItems", () => {
-  it("shows everything under all", () => {
+  it("shows everything still in play under all", () => {
     expect(ids(filterItems(all, "all", ""))).toEqual(["fresh", "old", "new", "sold"]);
+  });
+
+  it("hides shipped items from all, and shows only them under shipped", () => {
+    const withShipped = [...all, shipped];
+    expect(ids(filterItems(withShipped, "all", ""))).not.toContain("shipped");
+    expect(ids(filterItems(withShipped, "shipped", ""))).toEqual(["shipped"]);
+    expect(ids(filterItems(withShipped, "shipped", "harley"))).toEqual(["shipped"]);
   });
 
   it("needs photos: unsold items missing any of the three photos", () => {
@@ -119,8 +127,8 @@ describe("filterItems", () => {
 
 describe("filterCounts", () => {
   it("counts each chip for the current search", () => {
-    expect(filterCounts(all, "")).toEqual({ all: 4, "needs-photos": 1, listed: 2, unsold: 1 });
-    expect(filterCounts(all, "scarf")).toEqual({ all: 1, "needs-photos": 0, listed: 1, unsold: 1 });
+    expect(filterCounts([...all, shipped], "")).toEqual({ all: 4, "needs-photos": 1, listed: 2, unsold: 1, shipped: 1 });
+    expect(filterCounts(all, "scarf")).toEqual({ all: 1, "needs-photos": 0, listed: 1, unsold: 1, shipped: 0 });
   });
 });
 

@@ -33,6 +33,10 @@ const EMPTY_FILTER: Record<Exclude<Filter, "all">, { message: string; hint: stri
     message: "Nothing is listed yet.",
     hint: "Tap “Mark listed” on a find once it’s up on Depop, Instagram or at a market.",
   },
+  shipped: {
+    message: "Nothing shipped yet.",
+    hint: "Items move here once you mark them shipped in Pack, or sell them at a market.",
+  },
   unsold: {
     message: "Nothing has been sitting too long.",
     hint: "Listed finds show up here when they haven’t sold for a while, so you can lower the price.",
@@ -153,7 +157,15 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
             </button>
           </div>
         ) : (
-          filter !== "all" && <EmptyState {...EMPTY_FILTER[filter]} />
+          (filter === "all" ? (
+            <EmptyState
+              message="Everything you've sold is shipped."
+              hint="Add your next find. Shipped items are under the “Shipped” filter."
+              action={{ href: "/items/new", label: "Add item" }}
+            />
+          ) : (
+            <EmptyState {...EMPTY_FILTER[filter]} />
+          ))
         )}
       </div>
     </>

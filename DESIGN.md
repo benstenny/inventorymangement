@@ -111,8 +111,8 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
 - **PrepChecklist**: gel ticks (mint) and open gel circles (muted).
 - **Inventory home** (`components/inventory/inventory-list.tsx`): a summary line under the title
   ("1 to ship · 4 to prep · 3 listed"), search, filter chips that wrap (never hidden off-screen), then
-  under "All" the list grouped by what to do next: To ship, To prep, Listed, Shipped (`groupBySection`
-  in lib/items/list.ts). Section headings are 20px bold plum with a muted count; 28px between sections.
+  under "All" the list grouped by what to do next: To ship, To prep, Listed (`groupBySection`
+  in lib/items/list.ts). Shipped (and handed-over) items leave "All" and live under the "Shipped" filter. Section headings are 20px bold plum with a muted count; 28px between sections.
   Other filters show one flat list.
 - **Item row** (`components/inventory/item-row.tsx`): 96px 4:5 photo (it sets the row height), title,
   SKU and bin in purple, pink price

@@ -97,7 +97,11 @@ export function toListItem(
   };
 }
 
-export const FILTERS = ["all", "needs-photos", "listed", "unsold"] as const;
+/**
+ * "All" is everything she still has to deal with: shipped (and returned) items drop out of it once
+ * they're gone, and live under the "Shipped" filter instead.
+ */
+export const FILTERS = ["all", "needs-photos", "listed", "unsold", "shipped"] as const;
 export type Filter = (typeof FILTERS)[number];
 
 export function filterLabels(staleDays: number): Record<Filter, string> {
@@ -106,6 +110,7 @@ export function filterLabels(staleDays: number): Record<Filter, string> {
     "needs-photos": "Needs photos",
     listed: "Listed",
     unsold: `Unsold ${staleDays}+ days`,
+    shipped: "Shipped",
   };
 }
 
@@ -114,11 +119,17 @@ export function parseFilter(value: unknown): Filter {
   return (FILTERS as readonly unknown[]).includes(value) ? (value as Filter) : "all";
 }
 
+/** Gone for good: shipped, or handed over at a market (also SHIPPED), or returned. */
+function isDone(status: ListItem["status"]): boolean {
+  return status === "SHIPPED" || status === "RETURNED";
+}
+
 const MATCHES: Record<Filter, (item: ListItem) => boolean> = {
-  all: () => true,
+  all: (item) => !isDone(item.status),
   "needs-photos": (item) => isInStock(item.status) && !item.prep.photographed,
   listed: (item) => item.status === "LISTED",
   unsold: (item) => item.stale,
+  shipped: (item) => isDone(item.status),
 };
 
 /** Lower case, no accents, single spaces: "  Levi’s Café " -> "levi's cafe". */

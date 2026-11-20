@@ -14,8 +14,8 @@ import { LogOutButton } from "@/components/log-out-button";
  */
 const links = [
   { href: "/", label: "Inventory", Icon: HangerIcon, ink: "text-ink-lilac" },
-  { href: "/items/new", label: "Add", Icon: PlusIcon, ink: "text-ink-pink", primary: true },
   { href: "/pack", label: "Pack", Icon: BoxIcon, ink: "text-warning" },
+  { href: "/items/new", label: "Add", Icon: PlusIcon, ink: "text-ink-pink", primary: true },
   { href: "/summary", label: "Money", Icon: MoneyIcon, ink: "text-ink-aqua" },
   { href: "/settings", label: "Settings", Icon: GearIcon, ink: "text-text" },
 ] as const;
