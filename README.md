@@ -104,6 +104,12 @@ If you change environment variables on Vercel, redeploy for them to take effect.
 
 ---
 
+## Monthly backup
+
+Once a month, open **Money**, scroll to **Backup**, and download **Items CSV** and **Expenses CSV**.
+Keep them somewhere safe (Google Drive, iCloud). They open in Google Sheets, Numbers or Excel, and
+hold every item (sold and archived ones too) and every expense, with money in dollars.
+
 ## Environment variables
 
 | Name | Where it's used | Secret? |

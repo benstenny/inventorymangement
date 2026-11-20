@@ -137,6 +137,13 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
   from her local date), the buyer's note, then "Take proof photo" (opens the camera) and
   "Mark shipped", which stays disabled until the proof photo has uploaded. Only the most urgent card
   gets the primary button. Sold rows in the inventory list show a "Pack it" pill.
+- **Money** (`/summary`, `components/money/`): ‹ month › switcher; profit card (big pink figure, red
+  if a loss, then Sales and each deduction spelled out); Budgets as a meter list (name, "$96 of $130",
+  8px bar on a `bg-hairline` track, fill pink -> orange from 90% -> red when over, and "$34 left" /
+  "Over by $22" in words, never color alone), with "Change budgets" folded underneath (stock and
+  upkeep per month, live total); Sold (each sale with its own profit); Expenses with "Add expense"
+  (`/summary/expenses/new`: Supplies / Upkeep / Other chips, cost, date, note) and Remove; Backup
+  (Items CSV, Expenses CSV). Background picker and Log out stay at the bottom for now.
 - **Text box** (`textareaClass`): the input look with card corners; never pill ends on multi-line fields.
 - **Holo sticker** (`holo` class): small tilted label, only for Sold or Shipped.
 - **Empty state**: hanger drawing, one sentence, one hint, the action that fixes it.

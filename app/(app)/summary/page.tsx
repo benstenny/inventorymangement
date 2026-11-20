@@ -1,25 +1,104 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { connection } from "next/server";
+import { Suspense } from "react";
 import { BackgroundPicker } from "@/components/background-picker";
-import { EmptyState } from "@/components/empty-state";
+import { PlusIcon } from "@/components/icons";
+import { ListSkeleton } from "@/components/inventory/list-skeleton";
 import { LogOutButton } from "@/components/log-out-button";
+import { BudgetEditor } from "@/components/money/budget-editor";
+import { BudgetMeters, ExpenseList, MonthNav, ProfitCard, SoldList } from "@/components/money/report";
 import { PageHeader } from "@/components/page-header";
+import { groupClass, secondaryButtonClass } from "@/components/ui/styles";
+import { todayIso } from "@/lib/dates";
+import { getMonthReport } from "@/lib/money-data";
+import { isMonth, monthOf } from "@/lib/money-report";
 
 export const metadata: Metadata = { title: "Money" };
 
-// Phase 6 replaces this with the monthly report, expenses and CSV export.
-export default function SummaryPage() {
+const sectionHeading = "mb-2.5 px-1 text-[20px] font-bold";
+
+export default function SummaryPage({ searchParams }: PageProps<"/summary">) {
   return (
-    <div className="mx-auto w-full max-w-wide">
+    <div className="mx-auto w-full max-w-page">
       <PageHeader title="money" />
-      <EmptyState
-        message="Your profit shows up here after your first sale."
-        hint="Every sale counts its fees, shipping and supplies, so the number is what you really made."
-        action={{ href: "/items/new", label: "Add item" }}
-      />
-      <div className="mx-auto mt-10 w-full max-w-page">
+      <Suspense fallback={<ListSkeleton />}>
+        <Report searchParams={searchParams} />
+      </Suspense>
+
+      <section aria-labelledby="backup-heading" className="mt-10">
+        <h2 id="backup-heading" className={sectionHeading}>
+          Backup
+        </h2>
+        <div className={`${groupClass} p-4`}>
+          <p className="text-[15px] text-muted">
+            Download both once a month and keep them somewhere safe. They open in Google Sheets, Numbers or Excel.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <a href="/api/export/items" download className={secondaryButtonClass}>
+              Items CSV
+            </a>
+            <a href="/api/export/expenses" download className={secondaryButtonClass}>
+              Expenses CSV
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-10">
         <BackgroundPicker />
       </div>
       <LogOutButton className="mx-auto mt-6 w-fit lg:hidden" />
     </div>
+  );
+}
+
+async function Report({ searchParams }: { searchParams: PageProps<"/summary">["searchParams"] }) {
+  // Her money and the Supabase session are per request: never prerender this part.
+  await connection();
+  const params = await searchParams;
+  const current = monthOf(todayIso());
+  const month = isMonth(params.month) && params.month <= current ? params.month : current;
+  const report = await getMonthReport(month);
+
+  return (
+    <>
+      <MonthNav month={month} current={current} />
+      <ProfitCard report={report} />
+
+      <section aria-labelledby="budgets-heading" className="mt-8">
+        <h2 id="budgets-heading" className={sectionHeading}>
+          Budgets
+        </h2>
+        <div className={`${groupClass} p-4`}>
+          <BudgetMeters stock={report.budgets.stock} upkeep={report.budgets.upkeep} />
+          <BudgetEditor
+            key={`${report.budgets.stock.budget}-${report.budgets.upkeep.budget}`}
+            inventory={report.budgets.stock.budget}
+            upkeep={report.budgets.upkeep.budget}
+          />
+        </div>
+      </section>
+
+      <section aria-labelledby="sold-heading" className="mt-8">
+        <h2 id="sold-heading" className={sectionHeading}>
+          Sold
+        </h2>
+        <SoldList items={report.items} />
+      </section>
+
+      <section aria-labelledby="expenses-heading" className="mt-8">
+        <div className="mb-2.5 flex items-center justify-between gap-3 px-1">
+          <h2 id="expenses-heading" className="text-[20px] font-bold">
+            Expenses
+          </h2>
+          <Link href="/summary/expenses/new" className={`${secondaryButtonClass} gap-1.5`}>
+            <PlusIcon size={18} />
+            Add expense
+          </Link>
+        </div>
+        <ExpenseList rows={report.expenseRows} />
+      </section>
+    </>
   );
 }

@@ -55,3 +55,13 @@ export const PHOTO_SLOT_LABELS: Record<PhotoSlot, string> = {
   back: "Back",
   styled: "Styled",
 };
+
+export const EXPENSE_KINDS = ["SUPPLIES", "UPKEEP", "OTHER"] as const;
+export type ExpenseKind = (typeof EXPENSE_KINDS)[number];
+
+/** Supplies: mailers, tape, tissue. Upkeep: laundromat, steamer, repairs. Other: anything else. */
+export const EXPENSE_KIND_LABELS: Record<ExpenseKind, string> = {
+  SUPPLIES: "Supplies",
+  UPKEEP: "Upkeep",
+  OTHER: "Other",
+};

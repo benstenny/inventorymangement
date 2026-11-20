@@ -84,7 +84,8 @@ Version 1 (build in this order)
 5. Pack today: sold but not shipped, oldest first, with ship-by date; take a proof photo, then mark shipped
    (done: Pack tab with a count badge; the proof photo is required)
 6. Money: add an expense, monthly report (sales, item costs, fees, shipping, expenses, profit,
-   per-item table, spend vs budget), CSV export (monthly backup)
+   per-item table, spend vs budget), CSV export (monthly backup) (done; budgets can be changed
+   from the Money tab: stock and upkeep per month)
 
 Version 1.1 (only after she has used v1 for a few weeks)
 - Enter a whole shopping trip at once, splitting total cost across items

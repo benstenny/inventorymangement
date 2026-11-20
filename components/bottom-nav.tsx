@@ -23,7 +23,7 @@ type NavLink = (typeof links)[number];
 function isActive(pathname: string | null, href: string) {
   if (!pathname) return false;
   if (href === "/") return pathname === "/" || (pathname.startsWith("/items/") && pathname !== "/items/new");
-  return pathname === href;
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 /** App navigation. The current tab is only known at request time, so it streams in. */
