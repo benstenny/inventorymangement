@@ -1,41 +1,76 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. DESIGN.md is the source of truth; keep the two in sync.
- * Raw values live only in this file. Components use the Tailwind utilities
- * these tokens generate (bg-surface, text-muted, rounded-card, h-touch, ...).
+ * Design tokens: the "Gel Pen Binder" world. DESIGN.md is the source of truth;
+ * keep the two in sync. Raw values live only in this file. Components use the
+ * Tailwind utilities these tokens generate (bg-surface, text-ink-pink, ...).
+ *
+ * The shell is plain iOS. The world shows only in type (bubble-letter large
+ * titles), gel-ink colours, gel-pen ticks, and one holographic finish that
+ * only ever means "sold".
  */
 
 :root {
-  --bg: #f7f6f4;
+  /* Page and text: a clean white page written in near-black plum ink. */
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-muted: #efede9;
-  --text: #1c1b19;
-  --text-muted: #6b6862;
-  --border: #dedad3;
-  --accent: #1c1b19;
+  --surface-muted: #f4effb;  /* filled inputs, photo wells, search */
+  --surface-raised: #ffffff;
+  --text: #2a1a4a;
+  --text-muted: #6e6088;     /* 5.6:1 on white */
+  --border: #ebe4f4;
+  --hairline: #e3daef;
+
+  /* Gel inks. Text-safe shades (≥4.5:1 on white) carry words; glow shades only decorate. */
+  --ink-lilac: #7d3df0;      /* Inventory tab, links */
+  --ink-lilac-glow: #b57cff; /* bubble title fill */
+  --ink-pink: #d3248f;       /* prices, the Add action, primary buttons */
+  --ink-pink-glow: #ff5fb8;
+  --ink-aqua: #0b7f88;       /* done ticks */
+  --ink-aqua-glow: #3fd6e0;
+  --ink-lime-glow: #b6f24a;  /* highlight wash only, never text */
+
+  --accent: var(--ink-pink);
   --on-accent: #ffffff;
-  --success: #2f6f4f;
-  --warning: #8a5a00;
-  --danger: #a33a2e;
-  --focus: #3b6fd4;
+  --success: #0b7f88;
+  --warning: #a14f00;
+  --danger: #c0262d;
+  --focus: #7d3df0;
+
+  /* The one holographic finish. Reserved for SOLD. */
+  --holo: linear-gradient(115deg, #ffd6f3 0%, #c9f6ff 30%, #e9ffc4 52%, #e4d1ff 76%, #ffd6f3 100%);
+
+  --bar-glass: rgb(255 255 255 / 0.86);
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #141312;
-    --surface: #1e1d1b;
-    --surface-muted: #2a2826;
-    --text: #f2f0ec;
-    --text-muted: #a8a49c;
-    --border: #3a3734;
-    --accent: #f2f0ec;
-    --on-accent: #141312;
-    --success: #7cc4a0;
-    --warning: #e0b35c;
-    --danger: #ef8a7d;
-    --focus: #8fb0f0;
+    --bg: #160d29;
+    --surface: #211538;
+    --surface-muted: #2c1f47;
+    --surface-raised: #2a1d44;
+    --text: #f5f0fd;
+    --text-muted: #b6a9cf;
+    --border: #3a2c58;
+    --hairline: #34274f;
+
+    --ink-lilac: #c3a0ff;
+    --ink-lilac-glow: #b57cff;
+    --ink-pink: #ff7cc8;
+    --ink-pink-glow: #ff5fb8;
+    --ink-aqua: #5fe0e8;
+    --ink-aqua-glow: #3fd6e0;
+    --ink-lime-glow: #b6f24a;
+
+    --accent: #ff5fb8;
+    --on-accent: #22102f;
+    --success: #5fe0e8;
+    --warning: #f2b45a;
+    --danger: #ff8a8f;
+    --focus: #c3a0ff;
+
+    --bar-glass: rgb(28 18 49 / 0.84);
     color-scheme: dark;
   }
 }
@@ -46,47 +81,129 @@
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
+  --color-surface-raised: var(--surface-raised);
   --color-text: var(--text);
   --color-muted: var(--text-muted);
   --color-border: var(--border);
+  --color-hairline: var(--hairline);
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-focus: var(--focus);
+  --color-ink-lilac: var(--ink-lilac);
+  --color-ink-lilac-glow: var(--ink-lilac-glow);
+  --color-ink-pink: var(--ink-pink);
+  --color-ink-pink-glow: var(--ink-pink-glow);
+  --color-ink-aqua: var(--ink-aqua);
+  --color-ink-aqua-glow: var(--ink-aqua-glow);
+  --color-ink-lime-glow: var(--ink-lime-glow);
+  --color-bar-glass: var(--bar-glass);
 
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* iOS system text; the bubble face is for large titles only. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-chewy), "Chewy", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 @theme {
   /* Spacing: Tailwind's 4px scale (p-1 = 4px, p-4 = 16px) plus named sizes. */
-  --spacing-touch: 44px;   /* minimum touch target */
-  --spacing-bar: 64px;     /* bottom nav height */
+  --spacing-touch: 44px;   /* minimum touch target (iOS 44pt) */
+  --spacing-bar: 56px;     /* tab bar height above the home indicator */
   --spacing-gutter: 16px;  /* page side padding on phones */
-  --container-page: 640px; /* max content width on desktop */
+  --spacing-sidebar: 248px; /* laptop sidebar width */
+  --container-page: 640px; /* form and reading width */
+  --container-wide: 1080px; /* list and report width on a laptop */
 
-  --radius-control: 10px;
-  --radius-card: 14px;
+  --radius-control: 12px;
+  --radius-card: 16px;
   --radius-pill: 999px;
 
-  --shadow-bar: 0 -1px 0 var(--border);
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-card: 0 1px 2px rgb(42 26 74 / 0.06), 0 4px 14px rgb(42 26 74 / 0.06);
+  --shadow-float: 0 6px 18px rgb(211 36 143 / 0.32), 0 2px 4px rgb(42 26 74 / 0.12);
+  --shadow-sticker: 0 2px 6px rgb(42 26 74 / 0.25);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html {
   /* 16px base keeps iOS from zooming into inputs. */
   font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+  caret-color: var(--ink-pink);
+  font-feature-settings: "tnum" 0;
+}
+
+/* Browser surfaces carry the world too. */
+::selection {
+  background: color-mix(in srgb, var(--ink-lilac-glow) 35%, transparent);
+  color: var(--text);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+  border-radius: 4px;
+}
+
+* {
+  scrollbar-color: var(--hairline) transparent;
+  scrollbar-width: thin;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+/* Money always lines up. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bubble-letter large title: lilac gel fill with a plum ink outline. */
+.bubble-title {
+  font-family: var(--font-display);
+  color: var(--ink-lilac-glow);
+  -webkit-text-stroke: 1.5px var(--text);
+  paint-order: stroke fill;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* The holographic SOLD sticker: the only place the holo finish appears. */
+.holo {
+  background: var(--holo);
+  color: #2a1a4a;
+  box-shadow: 0 0 0 1.5px #ffffff, var(--shadow-sticker);
+}
+
+/* Gel-pen tick that draws itself on once. */
+.gel-tick path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 0;
+}
+.gel-tick[data-draw="true"] path {
+  animation: gel-draw 420ms var(--ease-out-expo) both;
+}
+@keyframes gel-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
 }

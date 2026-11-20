@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CameraIcon } from "@/components/icons";
 import { uploadItemPhoto } from "@/lib/photo-upload";
 
 type Props = {
@@ -75,23 +76,31 @@ export function PhotoPicker({ name, label, initialPath, initialUrl, error, onUpl
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-card bg-surface-muted text-muted"
+        className={`relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-card transition-transform duration-150 ease-out-expo active:scale-[0.97] ${
+          preview
+            ? "bg-surface-muted"
+            : "border-2 border-dashed border-ink-lilac-glow/60 bg-surface-muted text-ink-lilac hover:border-ink-lilac-glow"
+        }`}
         aria-label={preview ? `Retake ${label.toLowerCase()} photo` : `Add ${label.toLowerCase()} photo`}
       >
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element -- blob: and signed URLs, no optimisation needed
           <img src={preview} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span className="flex flex-col items-center gap-1">
-            <CameraIcon />
-            <span className="text-sm font-medium">{label}</span>
+          <span className="flex flex-col items-center gap-1.5">
+            <CameraIcon size={26} />
+            <span className="text-[15px] font-semibold">{label}</span>
           </span>
         )}
         {state.kind === "uploading" && (
-          <span className="absolute inset-x-0 bottom-0 bg-surface py-1 text-center text-sm text-text">Uploading…</span>
+          <span className="absolute inset-x-1.5 bottom-1.5 rounded-[8px] bg-bar-glass py-1 text-center text-[13px] font-semibold text-text backdrop-blur-md">
+            Uploading…
+          </span>
         )}
         {state.kind === "ready" && (
-          <span className="absolute inset-x-0 bottom-0 bg-surface py-1 text-center text-sm text-text">{label}</span>
+          <span className="absolute bottom-1.5 left-1.5 rounded-[8px] bg-bar-glass px-2 py-0.5 text-[13px] font-semibold text-text backdrop-blur-md">
+            {label}
+          </span>
         )}
       </button>
 
@@ -99,26 +108,17 @@ export function PhotoPicker({ name, label, initialPath, initialUrl, error, onUpl
         <button
           type="button"
           onClick={() => setState({ kind: "empty" })}
-          className="min-h-touch text-sm text-muted underline"
+          className="min-h-touch text-[15px] font-medium text-muted"
         >
           Remove
         </button>
       )}
 
       {message && (
-        <p className="text-sm text-danger" role="alert">
+        <p className="text-[13px] font-medium text-danger" role="alert">
           {message}
         </p>
       )}
     </div>
-  );
-}
-
-function CameraIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
-      <circle cx="12" cy="13.5" r="3.5" />
-    </svg>
   );
 }

@@ -1,9 +1,9 @@
 import { ImageResponse } from "next/og";
 
-// Placeholder app icon: a hanger on the accent color. Swap it when the shop has a logo.
-// Colors mirror the light --accent / --on-accent tokens (images can't read CSS variables).
-const ACCENT = "#1c1b19";
-const ON_ACCENT = "#ffffff";
+// App icon: a gel-pink hanger on plum ink. Swap it when the shop has a logo.
+// Colors mirror the --text and --ink-pink-glow tokens (images can't read CSS variables).
+const ACCENT = "#2a1a4a";
+const ON_ACCENT = "#ff5fb8";
 
 const hanger = encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="${ON_ACCENT}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M43 28a7 7 0 1 1 10 6.3c-2 1-3 2.4-3 4.7v3L15 64c-3 2-1.8 6 2 6h66c3.8 0 5-4 2-6L50 42"/></svg>`,

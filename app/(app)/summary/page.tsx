@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/empty-state";
+import { LogOutButton } from "@/components/log-out-button";
+import { PageHeader } from "@/components/page-header";
 
-export const metadata: Metadata = { title: "Summary" };
+export const metadata: Metadata = { title: "Money" };
 
-// Phase 6 replaces this with stock count, money in, profit and CSV export.
+// Phase 6 replaces this with the monthly report, expenses and CSV export.
 export default function SummaryPage() {
   return (
-    <>
-      <h1 className="mb-4 text-2xl font-semibold">Summary</h1>
+    <div className="mx-auto w-full max-w-wide">
+      <PageHeader title="money" />
       <EmptyState
-        message="Your totals show up here once you've sold something. Start by adding items."
+        message="Your profit shows up here after your first sale."
+        hint="Every sale counts its fees, shipping and supplies, so the number is what you really made."
         action={{ href: "/items/new", label: "Add item" }}
       />
-    </>
+      <LogOutButton className="mx-auto mt-10 w-fit lg:hidden" />
+    </div>
   );
 }

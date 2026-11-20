@@ -12,10 +12,10 @@ export function ArchiveButton({ id }: { id: string }) {
           e.preventDefault();
         }
       }}
-      className="mt-6 flex justify-center"
+      className="mt-8 flex justify-center lg:justify-start"
     >
       <input type="hidden" name="id" value={id} />
-      <button type="submit" className="min-h-touch px-4 text-sm text-danger">
+      <button type="submit" className="min-h-touch rounded-control px-4 font-semibold text-danger transition-colors hover:bg-surface-muted">
         Archive item
       </button>
     </form>

@@ -1,22 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Chewy } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Bubble-letter display face for large titles. next/font self-hosts it at build time.
+const chewy = Chewy({
+  variable: "--font-chewy",
+  weight: "400",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: { default: "Inventory", template: "%s · Inventory" },
-  description: "Track thrifted stock from sourcing to sale.",
-  applicationName: "Inventory",
-  appleWebApp: { capable: true, title: "Inventory", statusBarStyle: "default" },
+  title: { default: "reydiantfinds", template: "%s · reydiantfinds" },
+  description: "Track thrifted finds from the rack to the buyer.",
+  applicationName: "reydiantfinds",
+  appleWebApp: { capable: true, title: "reydiantfinds", statusBarStyle: "default" },
   icons: {
     icon: { url: "/icon", type: "image/png", sizes: "32x32" },
     apple: "/icons/apple-touch-icon.png",
@@ -29,18 +26,15 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f6f4" },
-    { media: "(prefers-color-scheme: dark)", color: "#141312" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#160d29" },
   ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${chewy.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { ArchiveButton } from "@/components/item-form/archive-button";
 import { FormSkeleton } from "@/components/item-form/form-skeleton";
 import { ItemForm } from "@/components/item-form/item-form";
+import { PageHeader } from "@/components/page-header";
 import { PrepChecklist } from "@/components/prep-checklist";
 import { getCategories, getFormSettings, getItem } from "@/lib/items/data";
 import { STATUS_LABELS } from "@/lib/items/options";
@@ -41,16 +42,17 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
   });
 
   return (
-    <>
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Edit item</h1>
-        <span className="font-mono text-sm text-muted">{item.sku}</span>
-      </div>
-
-      <PrepChecklist done={checklist} className="mb-4" />
+    <div className="mx-auto w-full max-w-page lg:max-w-wide">
+      <PageHeader
+        title={item.title}
+        back={{ href: "/", label: "Inventory" }}
+        trailing={<span className="tabular font-mono text-[15px] text-muted">{item.sku}</span>}
+      >
+        <PrepChecklist done={checklist} className="mb-6" />
+      </PageHeader>
 
       {item.archived_at && (
-        <p className="mb-4 rounded-card border border-border bg-surface p-3 text-sm text-warning">
+        <p className="mb-5 rounded-card bg-surface-muted p-4 text-[15px] font-medium text-warning">
           This item is archived. It won&apos;t show in your list.
         </p>
       )}
@@ -92,6 +94,6 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
       />
 
       {!item.archived_at && <ArchiveButton id={item.id} />}
-    </>
+    </div>
   );
 }

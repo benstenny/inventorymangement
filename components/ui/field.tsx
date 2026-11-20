@@ -13,17 +13,17 @@ type Props = {
 /** Label above, input, then a hint or error below (see DESIGN.md > Input). */
 export function Field({ label, htmlFor, error, hint, children, className = "" }: Props) {
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
+    <div className={`flex flex-col gap-1.5 ${className}`}>
       <label htmlFor={htmlFor} className={labelClass}>
         {label}
       </label>
       {children}
       {error ? (
-        <p className="text-sm text-danger" role="alert">
+        <p className="text-[13px] font-medium text-danger" role="alert">
           {error}
         </p>
       ) : hint ? (
-        <p className="text-sm text-muted">{hint}</p>
+        <p className="text-[13px] text-muted">{hint}</p>
       ) : null}
     </div>
   );

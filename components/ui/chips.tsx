@@ -14,7 +14,7 @@ type Props = {
 };
 
 const chipClass =
-  "flex min-h-touch items-center rounded-pill border border-border bg-surface px-4 peer-checked:border-accent peer-checked:bg-accent peer-checked:text-on-accent peer-focus-visible:outline-2 peer-focus-visible:outline-focus";
+  "flex min-h-touch items-center rounded-pill bg-surface-muted px-4 text-[15px] font-semibold text-text transition-[transform,background-color] duration-150 ease-out-expo active:scale-95 peer-checked:bg-text peer-checked:text-bg peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus";
 
 /**
  * Single-choice chips. Native radio buttons underneath, so they work with
@@ -72,7 +72,7 @@ export function MultiChips({ name, label, options, defaultValues = [], error, hi
           </label>
         ))}
       </div>
-      {error ? <ChipError id={errorId} error={error} /> : hint && <p className="text-sm text-muted">{hint}</p>}
+      {error ? <ChipError id={errorId} error={error} /> : hint && <p className="text-[13px] text-muted">{hint}</p>}
     </fieldset>
   );
 }
@@ -80,7 +80,7 @@ export function MultiChips({ name, label, options, defaultValues = [], error, hi
 function ChipError({ id, error }: { id: string; error?: string }) {
   if (!error) return null;
   return (
-    <p id={id} className="text-sm text-danger" role="alert">
+    <p id={id} className="text-[13px] font-medium text-danger" role="alert">
       {error}
     </p>
   );

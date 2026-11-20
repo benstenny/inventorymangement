@@ -5,7 +5,8 @@ import { startTransition, useActionState, useCallback, useEffect, useRef, useSta
 import { saveItem, type SaveItemState } from "@/app/(app)/items/actions";
 import { Chips, MultiChips } from "@/components/ui/chips";
 import { Field } from "@/components/ui/field";
-import { inputClass, primaryButtonClass } from "@/components/ui/styles";
+import { GelTick, ChevronRightIcon } from "@/components/icons";
+import { groupClass, inputClass, labelClass, primaryButtonClass } from "@/components/ui/styles";
 import { centsToInput, formatCents, parseMoneyToCents } from "@/lib/money";
 import { suggestPrices, type FeePreset, type PricingSettings } from "@/lib/pricing";
 import { formatInches, measurementField, measurementsFor, type Measurements } from "@/lib/items/measurements";
@@ -169,11 +170,12 @@ export function ItemForm({ mode, defaults, lastPlatforms, ...rest }: Props) {
       />
 
       {/* Space so the last field isn't hidden behind the save bar. */}
-      <div className="h-touch" aria-hidden />
+      <div className="h-16" aria-hidden />
 
-      <div className="fixed inset-x-0 bottom-[calc(var(--spacing-bar)+env(safe-area-inset-bottom))] z-10 border-t border-border bg-bg">
-        <div className="mx-auto max-w-page px-gutter py-3">
-          <button type="submit" disabled={pending || uploading} className={primaryButtonClass}>
+      {/* Pinned save: just above the tab bar on a phone, along the bottom edge on a laptop. */}
+      <div className="fixed inset-x-0 bottom-[calc(var(--spacing-bar)+env(safe-area-inset-bottom))] z-10 bg-gradient-to-t from-bg from-60% to-transparent pt-4 lg:bottom-0 lg:left-sidebar">
+        <div className="mx-auto max-w-page px-gutter pb-3 lg:max-w-wide lg:px-10 lg:pb-6">
+          <button type="submit" disabled={pending || uploading} className={`${primaryButtonClass} lg:ml-auto lg:w-60`}>
             {uploading ? "Uploading photo…" : pending ? "Saving…" : "Save item"}
           </button>
         </div>
@@ -185,21 +187,31 @@ export function ItemForm({ mode, defaults, lastPlatforms, ...rest }: Props) {
 function SaveMessage({ mode, state }: { mode: Props["mode"]; state: SaveItemState }) {
   if (state.formError) {
     return (
-      <p role="alert" className="rounded-card border border-danger bg-surface p-3 text-sm text-danger">
+      <p role="alert" className="rounded-card bg-surface-muted p-4 text-[15px] font-medium text-danger ring-1 ring-danger">
         {state.formError}
       </p>
     );
   }
   if (!state.saved) return null;
   return (
-    <p role="status" className="flex items-center justify-between gap-3 rounded-card bg-surface p-3 text-sm shadow-card">
-      <span>
-        <span className="text-success">Saved</span>{" "}
-        {mode === "create" ? <span className="font-medium">{state.saved.sku}</span> : "your changes"}
+    <p role="status" className={`${groupClass} flex items-center justify-between gap-3 py-1 pr-1 pl-4`}>
+      <span className="flex items-center gap-2 font-semibold">
+        <GelTick draw className="text-ink-aqua" size={22} />
+        {mode === "create" ? (
+          <span>
+            Saved <span className="font-mono text-[15px] text-muted">{state.saved.sku}</span>
+          </span>
+        ) : (
+          "Changes saved"
+        )}
       </span>
       {mode === "create" && (
-        <Link href={`/items/${state.saved.id}`} className="flex min-h-touch items-center px-2 font-medium underline">
+        <Link
+          href={`/items/${state.saved.id}`}
+          className="flex min-h-touch items-center gap-0.5 px-3 font-semibold text-ink-lilac"
+        >
           View
+          <ChevronRightIcon size={18} />
         </Link>
       )}
     </p>
@@ -241,21 +253,26 @@ function ItemFields({
   const suggestion = cost === null ? null : suggestPrices(cost, fees, pricing);
 
   return (
-    <>
-      <div className="grid grid-cols-3 gap-2">
-        {PHOTO_SLOTS.map((slot) => (
-          <PhotoPicker
-            key={slot}
-            name={PHOTO_FIELD[slot]}
-            label={PHOTO_SLOT_LABELS[slot]}
-            initialPath={values.photos?.[slot]?.path ?? null}
-            initialUrl={values.photos?.[slot]?.url ?? null}
-            error={errors[PHOTO_FIELD[slot]]}
-            onUploadingChange={onUploadingChange}
-          />
-        ))}
-      </div>
+    <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:items-start lg:gap-10">
+      {/* Photos lead. On a laptop they stay in view in their own column while the fields scroll. */}
+      <section aria-label="Photos" className="lg:sticky lg:top-6">
+        <div className="grid grid-cols-3 gap-2.5 lg:grid-cols-2 lg:gap-3 lg:[&>*:first-child]:col-span-2">
+          {PHOTO_SLOTS.map((slot) => (
+            <PhotoPicker
+              key={slot}
+              name={PHOTO_FIELD[slot]}
+              label={PHOTO_SLOT_LABELS[slot]}
+              initialPath={values.photos?.[slot]?.path ?? null}
+              initialUrl={values.photos?.[slot]?.url ?? null}
+              error={errors[PHOTO_FIELD[slot]]}
+              onUploadingChange={onUploadingChange}
+            />
+          ))}
+        </div>
+        <p className="mt-2 text-[13px] text-muted">Front, back, then styled on the mannequin.</p>
+      </section>
 
+      <div className="flex min-w-0 flex-col gap-6">
       <Field label="Title" htmlFor="title" error={errors.title}>
         <input
           id="title"
@@ -299,32 +316,24 @@ function ItemFields({
             />
           </Field>
         </div>
-        {suggestion && (
-          <p className="text-sm text-muted">
-            Lowest to take: <span className="font-medium text-text">{formatCents(suggestion.lowest, { whole: true })}</span>.
-            List at {formatCents(suggestion.listAt, { whole: true })} or more to leave room to haggle.
-          </p>
-        )}
+        {suggestion && <PriceHint lowest={suggestion.lowest} listAt={suggestion.listAt} />}
       </div>
 
-      <label className="flex min-h-touch items-center gap-3 rounded-card bg-surface px-4 shadow-card">
-        <input type="checkbox" name="washed" defaultChecked={values.washed} className="size-5 accent-accent" />
-        <span className="font-medium">Washed and steamed</span>
-      </label>
+      <WashedToggle defaultChecked={values.washed} />
 
       {guides.length > 0 && (
         <details
           open={hasError(guides.map((g) => measurementField(g.key))) || undefined}
-          className="group rounded-card bg-surface shadow-card"
+          className={`group ${groupClass}`}
         >
           <SectionSummary>
             Measurements
-            <span className="text-sm font-normal text-muted">
+            <span className="tabular text-[15px] font-medium text-muted">
               {guides.filter((g) => values.measurements?.[g.key] !== undefined).length} of {guides.length}
             </span>
           </SectionSummary>
-          <div className="flex flex-col gap-4 px-4 pt-1 pb-5">
-            <p className="text-sm text-muted">Lay it flat, smooth it out, and measure in inches.</p>
+          <div className="flex flex-col gap-4 border-t border-hairline px-4 pt-4 pb-5">
+            <p className="text-[15px] text-muted">Lay it flat, smooth it out, and measure in inches.</p>
             {guides.map((g) => {
               const field = measurementField(g.key);
               return (
@@ -350,10 +359,13 @@ function ItemFields({
         </details>
       )}
 
-      <details open={hasError(DETAIL_FIELDS) || undefined} className="group rounded-card bg-surface shadow-card">
-        <SectionSummary>More details</SectionSummary>
+      <details open={hasError(DETAIL_FIELDS) || undefined} className={`group ${groupClass}`}>
+        <SectionSummary>
+          More details
+          <span className="text-[15px] font-medium text-muted">Brand, flaws, price</span>
+        </SectionSummary>
 
-        <div className="flex flex-col gap-5 px-4 pt-2 pb-5">
+        <div className="flex flex-col gap-5 border-t border-hairline px-4 pt-4 pb-5">
           <div className="grid grid-cols-2 gap-3">
             <TextField name="brand" label="Brand" values={values} errors={errors} />
             <TextField name="size" label="Size" values={values} errors={errors} placeholder="M, W28, US 8" />
@@ -418,8 +430,17 @@ function ItemFields({
             <div className="flex flex-col gap-1">
               {/* Placeholder so validation passes; the server keeps the real status. */}
               <input type="hidden" name="status" value="SOURCED" />
-              <span className="text-sm font-medium">Status</span>
-              <p className="text-muted">{lockedStatusLabel}. Editing details here won&apos;t change the sale.</p>
+              <span className={labelClass}>Status</span>
+              <p className="flex items-center gap-2 text-muted">
+                {lockedStatusLabel === "Sold" || lockedStatusLabel === "Shipped" ? (
+                  <span className="holo rounded-[8px] px-2 py-0.5 text-[13px] font-extrabold tracking-wide uppercase">
+                    {lockedStatusLabel}
+                  </span>
+                ) : (
+                  <span className="font-semibold text-text">{lockedStatusLabel}.</span>
+                )}
+                Editing details here won&apos;t change the sale.
+              </p>
             </div>
           ) : (
             <Chips
@@ -446,18 +467,66 @@ function ItemFields({
           </Field>
         </div>
       </details>
-    </>
+      </div>
+    </div>
   );
 }
 
+/** iOS disclosure row: label, a quiet summary on the right, and a chevron that turns when open. */
 function SectionSummary({ children }: { children: React.ReactNode }) {
   return (
-    <summary className="flex min-h-touch cursor-pointer list-none items-center gap-2 px-4 font-medium [&::-webkit-details-marker]:hidden">
-      <span aria-hidden className="transition-transform group-open:rotate-90">
-        ▸
-      </span>
+    <summary className="flex min-h-[52px] cursor-pointer list-none items-center gap-2 pr-3 pl-4 text-[17px] font-semibold [&::-webkit-details-marker]:hidden">
       <span className="flex flex-1 items-center justify-between gap-2">{children}</span>
+      <ChevronRightIcon
+        size={20}
+        className="text-muted transition-transform duration-200 ease-out-expo group-open:rotate-90"
+      />
     </summary>
+  );
+}
+
+/** Lowest price she should take and where to list it, written in pink gel ink. */
+function PriceHint({ lowest, listAt }: { lowest: number; listAt: number }) {
+  return (
+    <p className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[15px] text-muted">
+      <span>
+        Lowest to take{" "}
+        <span className="tabular text-[17px] font-extrabold text-ink-pink">{formatCents(lowest, { whole: true })}</span>
+      </span>
+      <span>
+        List at{" "}
+        <span className="tabular text-[17px] font-extrabold text-ink-pink">{formatCents(listAt, { whole: true })}+</span>
+      </span>
+    </p>
+  );
+}
+
+/** iOS-style switch row. Turning it on inks a gel tick beside the label. */
+function WashedToggle({ defaultChecked }: { defaultChecked?: boolean }) {
+  const [on, setOn] = useState(!!defaultChecked);
+  const [touched, setTouched] = useState(false);
+  return (
+    <label className={`${groupClass} flex min-h-[52px] cursor-pointer items-center gap-3 px-4`}>
+      <span className="flex flex-1 items-center gap-2 text-[17px] font-semibold">
+        Washed and steamed
+        {on && <GelTick draw={touched} className="text-ink-aqua" size={20} />}
+      </span>
+      <input
+        type="checkbox"
+        name="washed"
+        role="switch"
+        checked={on}
+        onChange={(e) => {
+          setOn(e.target.checked);
+          setTouched(true);
+        }}
+        className="peer sr-only"
+      />
+      <span
+        aria-hidden
+        className="relative h-[31px] w-[51px] shrink-0 rounded-pill bg-surface-muted ring-1 ring-hairline transition-colors duration-200 peer-checked:bg-ink-aqua peer-checked:ring-transparent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus after:absolute after:top-[2px] after:left-[2px] after:size-[27px] after:rounded-pill after:bg-surface-raised after:shadow-card after:transition-transform after:duration-200 after:ease-out-expo peer-checked:after:translate-x-5"
+      />
+    </label>
   );
 }
 
@@ -541,7 +610,7 @@ function MoneyInput({
 }) {
   return (
     <div className="relative">
-      <span aria-hidden className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+      <span aria-hidden className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center font-semibold text-muted">
         $
       </span>
       <input
@@ -554,7 +623,7 @@ function MoneyInput({
         placeholder="0"
         aria-invalid={invalid || undefined}
         onChange={onCentsChange && ((e) => onCentsChange(e.target.value.trim() ? parseMoneyToCents(e.target.value) : null))}
-        className={`${inputClass} pl-7`}
+        className={`${inputClass} tabular pl-7`}
       />
     </div>
   );
