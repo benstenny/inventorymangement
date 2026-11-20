@@ -28,7 +28,7 @@ async function NewItemForm() {
       storageSpots={settings.storageSpots}
       pricing={settings.pricing}
       fees={worstCaseFees(settings.feePresets)}
-      lastPlatform={settings.lastUsed.platform}
+      lastPlatforms={settings.lastUsed.platforms}
       defaults={{
         source: settings.lastUsed.source ?? null,
         storageLocation: settings.lastUsed.storageLocation ?? null,

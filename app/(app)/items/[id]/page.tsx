@@ -61,7 +61,7 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
         storageSpots={settings.storageSpots}
         pricing={settings.pricing}
         fees={worstCaseFees(settings.feePresets)}
-        lastPlatform={settings.lastUsed.platform}
+        lastPlatforms={settings.lastUsed.platforms}
         lockedStatusLabel={editableStatus ? undefined : STATUS_LABELS[item.status]}
         defaults={{
           id: item.id,

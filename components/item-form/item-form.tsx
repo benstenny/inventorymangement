@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { startTransition, useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { saveItem, type SaveItemState } from "@/app/(app)/items/actions";
-import { Chips } from "@/components/ui/chips";
+import { Chips, MultiChips } from "@/components/ui/chips";
 import { Field } from "@/components/ui/field";
 import { inputClass, primaryButtonClass } from "@/components/ui/styles";
 import { centsToInput, formatCents, parseMoneyToCents } from "@/lib/money";
@@ -12,13 +12,13 @@ import { formatInches, measurementField, measurementsFor, type Measurements } fr
 import {
   CONDITIONS,
   FORM_STATUSES,
-  LISTED_ON,
-  LISTED_ON_LABELS,
   PHOTO_SLOTS,
   PHOTO_SLOT_LABELS,
+  PLATFORMS,
+  PLATFORM_LABELS,
   STATUS_LABELS,
-  type ListedOn,
   type PhotoSlot,
+  type Platform,
 } from "@/lib/items/options";
 import { formDataToInput, parseItemForm, type FieldErrors } from "@/lib/items/schema";
 import { PhotoPicker } from "./photo-picker";
@@ -41,7 +41,7 @@ export type ItemFormDefaults = {
   source?: string | null;
   acquiredDate?: string;
   status?: string;
-  listedOn?: string | null;
+  listedOn?: readonly Platform[];
   listPrice?: number | null;
   photos?: Partial<Record<PhotoSlot, { path: string | null; url: string | null }>>;
 };
@@ -58,8 +58,8 @@ type Props = {
   /** For the "lowest to take / list at" hint under the cost. */
   pricing: PricingSettings;
   fees: FeePreset;
-  /** Platform she used last time, pre-picked when she marks something as listed. */
-  lastPlatform?: ListedOn;
+  /** Platforms she used last time, pre-ticked when she marks something as listed. */
+  lastPlatforms?: readonly Platform[];
   /** Set for sold/shipped/returned items: status is shown, not editable. */
   lockedStatusLabel?: string;
 };
@@ -80,7 +80,7 @@ function localToday() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export function ItemForm({ mode, defaults, lastPlatform, ...rest }: Props) {
+export function ItemForm({ mode, defaults, lastPlatforms, ...rest }: Props) {
   const [state, formAction, pending] = useActionState<SaveItemState, FormData>(saveItem, { savedCount: 0 });
   const [clientErrors, setClientErrors] = useState<FieldErrors | null>(null);
   const [uploads, setUploads] = useState<Record<string, boolean>>({});
@@ -125,16 +125,18 @@ export function ItemForm({ mode, defaults, lastPlatform, ...rest }: Props) {
     el.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
-  // Marking it Listed with no platform yet: pre-pick the one she used last time.
+  // Marking it Listed with nothing ticked yet: tick the platforms she used last time.
   const handleStatusChange = useCallback(
     (status: string) => {
-      if (status !== "LISTED" || !lastPlatform || !formRef.current) return;
-      const chosen = formRef.current.querySelector<HTMLInputElement>('input[name="listedOn"]:checked');
-      if (chosen && chosen.value !== "") return;
-      const option = formRef.current.querySelector<HTMLInputElement>(`input[name="listedOn"][value="${lastPlatform}"]`);
-      if (option) option.checked = true;
+      const form = formRef.current;
+      if (status !== "LISTED" || !lastPlatforms?.length || !form) return;
+      if (form.querySelector('input[name="listedOn"]:checked')) return;
+      for (const platform of lastPlatforms) {
+        const option = form.querySelector<HTMLInputElement>(`input[name="listedOn"][value="${platform}"]`);
+        if (option) option.checked = true;
+      }
     },
-    [lastPlatform],
+    [lastPlatforms],
   );
 
   // In create mode, every successful save remounts the fields (clean form).
@@ -204,7 +206,7 @@ function SaveMessage({ mode, state }: { mode: Props["mode"]; state: SaveItemStat
   );
 }
 
-type FieldsProps = Omit<Props, "defaults" | "lastPlatform"> & {
+type FieldsProps = Omit<Props, "defaults" | "lastPlatforms"> & {
   values: ItemFormDefaults;
   errors: FieldErrors;
   onUploadingChange: (name: string, uploading: boolean) => void;
@@ -430,15 +432,13 @@ function ItemFields({
             />
           )}
 
-          <Chips
+          <MultiChips
             name="listedOn"
             label="Listed on"
-            options={[
-              { value: "", label: "Not yet" },
-              ...LISTED_ON.map((p) => ({ value: p, label: LISTED_ON_LABELS[p] })),
-            ]}
-            defaultValue={values.listedOn ?? ""}
+            options={PLATFORMS.map((p) => ({ value: p, label: PLATFORM_LABELS[p] }))}
+            defaultValues={values.listedOn}
             error={errors.listedOn}
+            hint="Tick every place it's up for sale. Leave blank if it isn't listed yet."
           />
 
           <Field label="Price" htmlFor="listPrice" error={errors.listPrice} className="w-1/2">

@@ -2,14 +2,15 @@
 
 ## Purpose
 A simple, fast inventory app for a small clothing resale shop (thrifted Y2K and vintage clothing
-sold on Depop and at flea markets). The user is non-technical, new to selling, and will mostly use
+sold on Depop, Instagram and at flea markets). The user is non-technical, new to selling, and will mostly use
 it on her phone while sourcing, photographing and packing. Simplicity and speed of data entry
 matter more than feature count. Build the smallest thing that works, then add only what real use asks for.
 
 Two views of one app: a phone PWA (primary) and a desktop web view (same routes, more room).
 
 ## The shop (from her business plan, Nov 2026)
-- Sells on **Depop** and at **flea markets** (paid in person by Venmo, Zelle or cash). Not Instagram for now.
+- Sells on **Depop**, **Instagram** and at **flea markets** (Instagram and markets are paid by Venmo,
+  Zelle or cash). An item can be listed in several places at once.
 - Sources from Thrift Vintage Fashion, OC Rag House, Goodwill, Salvation Army. About 1 hour and
   up to 20 lb per trip.
 - Stores items in Costco bins labelled by type (Tops bin, Bottoms bin).
@@ -39,7 +40,7 @@ Two views of one app: a phone PWA (primary) and a desktop web view (same routes,
 ## Out of Scope
 Direct marketplace API integrations (Depop's API is partner-only), multi-user accounts, payments,
 tax reporting, offline mode (assume constant internet), returns (all sales are final),
-copy-paste listing text. Depop and flea market are labels on an item, not integrations.
+copy-paste listing text. Depop, Instagram and flea market are labels on an item, not integrations.
 
 ## Data Model (keep it flat)
 `items` table:
@@ -50,8 +51,8 @@ copy-paste listing text. Depop and flea market are labels on an item, not integr
 - washed (bool): the one prep step that can't be worked out from other fields
 - source, sourceCost (cents), acquiredDate, storageLocation
 - status: SOURCED | NEEDS_PHOTOS | LISTED | SOLD | SHIPPED (RETURNED exists but has no UI: final sale)
-- listedOn: DEPOP | FLEA_MARKET | BOTH, listPrice (cents), listedDate
-- Sale fields, empty until sold: soldPlatform (DEPOP | FLEA_MARKET), soldPrice, soldDate,
+- listedOn: list of platforms (DEPOP, INSTAGRAM, FLEA_MARKET; empty = not listed), listPrice (cents), listedDate
+- Sale fields, empty until sold: soldPlatform (one of the three), soldPrice, soldDate,
   platformFees, shippingCost (all cents), paymentMethod (VENMO | ZELLE | CASH | DEPOP), buyerNotes
 - Shipping: shippedDate, shipProofPath (photo taken before sealing the package)
 - archivedAt (soft delete; never hard-delete items with sale history)
@@ -59,7 +60,7 @@ copy-paste listing text. Depop and flea market are labels on an item, not integr
 `expenses` table: spentOn, kind (SUPPLIES | UPKEEP | OTHER), amount (cents), note.
 What she paid for items is not an expense; it lives on the item.
 
-`settings` (one row): fee presets per platform (flea market 0%; Depop is a preset, never hardcoded),
+`settings` (one row): fee presets per platform (Instagram and flea market 0%; Depop is a preset, never hardcoded),
 stale_days (30), min_price (cents, $10), haggle_room (cents, $3), ship_within_days (5),
 inventory_budget and upkeep_budget (cents per month), sources and storage_spots (suggestion lists),
 last-used defaults.
@@ -77,8 +78,8 @@ Version 1 (build in this order)
    source and storage-spot suggestions
 3. Inventory list: search, filters (all, needs photos, listed, unsold 30+ days), one-tap status
    changes, prep checklist at a glance
-4. Mark as sold: platform, price, fees (auto from preset), shipping, payment method at markets,
-   profit shown immediately, plus a "take it down from Depop" reminder after a flea-market sale
+4. Mark as sold: platform, price, fees (auto from preset), shipping, payment method (Instagram and markets),
+   profit shown immediately, plus a reminder to take it down from the other places it was listed
 5. Pack today: sold but not shipped, oldest first, with ship-by date; take a proof photo, then mark shipped
 6. Money: add an expense, monthly report (sales, item costs, fees, shipping, expenses, profit,
    per-item table, spend vs budget), CSV export (monthly backup)
@@ -88,7 +89,7 @@ Version 1.1 (only after she has used v1 for a few weeks)
 - Settings screen: fee presets, minimum price, haggle room, budgets, sources, storage spots
 - CSV import
 
-Later, only if asked: shop branding (once she picks a name and style), Instagram as a platform,
+Later, only if asked: shop branding (once she picks a name and style),
 best/worst brand and category stats, n8n digests and automated backups.
 
 ## Photos

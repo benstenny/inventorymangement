@@ -2,7 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { FeePresets, PricingSettings } from "@/lib/pricing";
 import type { Measurements } from "./measurements";
-import { FORM_STATUSES, PHOTO_SLOTS, type ListedOn, type PhotoSlot, type Status } from "./options";
+import { FORM_STATUSES, PHOTO_SLOTS, type PhotoSlot, type Platform, type Status } from "./options";
 import type { ItemFormValues } from "./schema";
 
 /**
@@ -15,7 +15,7 @@ const SIGNED_URL_SECONDS = 60 * 60;
 
 export type Category = { id: string; name: string; skuPrefix: string };
 
-export type LastUsed = { source?: string; storageLocation?: string; platform?: ListedOn };
+export type LastUsed = { source?: string; storageLocation?: string; platforms?: Platform[] };
 
 /** Everything the add/edit form needs from the settings row. */
 export type FormSettings = {
@@ -47,7 +47,8 @@ export type ItemRow = {
   acquired_date: string;
   storage_location: string | null;
   status: Status;
-  listed_on: ListedOn | null;
+  /** Empty when it isn't listed anywhere yet. */
+  listed_on: Platform[];
   list_price: number | null;
   listed_date: string | null;
   archived_at: string | null;
@@ -147,7 +148,7 @@ export async function createItem(values: ItemFormValues): Promise<{ id: string; 
 
   const { data, error } = await supabase
     .from("items")
-    .insert({ ...toColumns(values), sku, listed_date: values.listedOn ? today() : null })
+    .insert({ ...toColumns(values), sku, listed_date: values.listedOn.length ? today() : null })
     .select("id, sku")
     .single();
   if (error) throw new Error(`Couldn't save the item: ${error.message}`);
@@ -176,7 +177,7 @@ export async function updateItem(id: string, values: ItemFormValues): Promise<vo
       ...columns,
       status: statusLocked ? before.status : values.status,
       // First time it's listed: stamp the date. Keep the original date after that.
-      listed_date: values.listedOn ? (before.listed_date ?? today()) : before.listed_date,
+      listed_date: values.listedOn.length ? (before.listed_date ?? today()) : before.listed_date,
     })
     .eq("id", id);
   if (error) throw new Error(`Couldn't save the item: ${error.message}`);
@@ -197,7 +198,7 @@ export async function archiveItem(id: string): Promise<void> {
   if (error) throw new Error(`Couldn't archive the item: ${error.message}`);
 }
 
-/** Saves source, storage spot and platform so the next form starts with them. */
+/** Saves source, storage spot and platforms so the next form starts with them. */
 async function rememberLastUsed(values: ItemFormValues) {
   const supabase = await createClient();
   const { data } = await supabase.from("settings").select("last_used").single();
@@ -205,7 +206,7 @@ async function rememberLastUsed(values: ItemFormValues) {
     ...((data?.last_used ?? {}) as LastUsed),
     ...(values.source ? { source: values.source } : {}),
     ...(values.storageLocation ? { storageLocation: values.storageLocation } : {}),
-    ...(values.listedOn ? { platform: values.listedOn } : {}),
+    ...(values.listedOn.length ? { platforms: values.listedOn } : {}),
   };
   // Single-row table: the primary key is always true.
   await supabase.from("settings").update({ last_used: next }).eq("id", true);

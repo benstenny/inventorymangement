@@ -15,19 +15,23 @@ export const STATUS_LABELS: Record<Status, string> = {
 /** Statuses she can pick in the add/edit form. Sold and shipped come from "Mark as sold" (Phase 4). */
 export const FORM_STATUSES = ["SOURCED", "NEEDS_PHOTOS", "LISTED"] as const satisfies readonly Status[];
 
-/** Where an item is up for sale. */
-export const LISTED_ON = ["DEPOP", "FLEA_MARKET", "BOTH"] as const;
-export type ListedOn = (typeof LISTED_ON)[number];
+/**
+ * Places she sells. An item can be listed on any of them at once (`listedOn`
+ * is a list) and sells on exactly one (`soldPlatform`).
+ */
+export const PLATFORMS = ["DEPOP", "INSTAGRAM", "FLEA_MARKET"] as const;
+export type Platform = (typeof PLATFORMS)[number];
 
-export const LISTED_ON_LABELS: Record<ListedOn, string> = {
+export const PLATFORM_LABELS: Record<Platform, string> = {
   DEPOP: "Depop",
+  INSTAGRAM: "Instagram",
   FLEA_MARKET: "Flea market",
-  BOTH: "Both",
 };
 
-/** Where an item actually sold. */
-export const SALE_PLATFORMS = ["DEPOP", "FLEA_MARKET"] as const;
-export type SalePlatform = (typeof SALE_PLATFORMS)[number];
+/** Puts platforms in the usual order and drops repeats. */
+export function sortPlatforms(platforms: readonly Platform[]): Platform[] {
+  return PLATFORMS.filter((p) => platforms.includes(p));
+}
 
 export const PAYMENT_METHODS = ["DEPOP", "VENMO", "ZELLE", "CASH"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];

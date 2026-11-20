@@ -43,7 +43,7 @@ describe("parseItemForm", () => {
       brand: null,
       condition: null,
       description: null,
-      listedOn: null,
+      listedOn: [],
       listPrice: null,
       photoFrontPath: null,
       flaws: null,
@@ -90,7 +90,7 @@ describe("parseItemForm", () => {
     if (result.ok) return;
     expect(result.errors.listedOn).toBe("Pick where it's listed.");
 
-    expect(parseItemForm(form({ status: "LISTED", listedOn: "BOTH" })).ok).toBe(true);
+    expect(parseItemForm(form({ status: "LISTED", listedOn: "DEPOP,INSTAGRAM" })).ok).toBe(true);
   });
 
   it("doesn't let the form set sold or shipped", () => {
@@ -102,7 +102,8 @@ describe("parseItemForm", () => {
     expect(parseItemForm(form({ condition: "Good" })).ok).toBe(true);
     expect(parseItemForm(form({ condition: "Mint" })).ok).toBe(false);
     expect(parseItemForm(form({ listedOn: "EBAY" })).ok).toBe(false);
-    expect(parseItemForm(form({ listedOn: "INSTAGRAM" })).ok).toBe(false);
+    expect(parseItemForm(form({ listedOn: "BOTH" })).ok).toBe(false);
+    expect(parseItemForm(form({ listedOn: "INSTAGRAM" })).ok).toBe(true);
     expect(parseItemForm(form({ listedOn: "FLEA_MARKET" })).ok).toBe(true);
   });
 
@@ -155,5 +156,24 @@ describe("measurements, flaws and washed", () => {
   it("keeps flaws as text", () => {
     const result = parseItemForm(form({ flaws: " Small hole near hem " }));
     expect(result.ok && result.values.flaws).toBe("Small hole near hem");
+  });
+});
+
+describe("listed on several platforms", () => {
+  it("reads every ticked platform, in the usual order, without repeats", () => {
+    const fd = new FormData();
+    fd.set("title", "Baby tee");
+    fd.append("listedOn", "FLEA_MARKET");
+    fd.append("listedOn", "DEPOP");
+    fd.append("listedOn", "DEPOP");
+    const input = formDataToInput(fd);
+    expect(input.listedOn).toBe("FLEA_MARKET,DEPOP,DEPOP");
+    const result = parseItemForm(form({ listedOn: input.listedOn }));
+    expect(result.ok && result.values.listedOn).toEqual(["DEPOP", "FLEA_MARKET"]);
+  });
+
+  it("allows all three at once", () => {
+    const result = parseItemForm(form({ status: "LISTED", listedOn: "INSTAGRAM,FLEA_MARKET,DEPOP" }));
+    expect(result.ok && result.values.listedOn).toEqual(["DEPOP", "INSTAGRAM", "FLEA_MARKET"]);
   });
 });

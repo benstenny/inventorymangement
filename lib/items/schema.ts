@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { parseMoneyToCents } from "@/lib/money";
 import { MEASUREMENT_KEYS, measurementField, parseInches, type Measurements } from "./measurements";
-import { CONDITIONS, FORM_STATUSES, LISTED_ON } from "./options";
+import { CONDITIONS, FORM_STATUSES, PLATFORMS, sortPlatforms } from "./options";
 
 /**
  * Validates the add/edit item form. Used in the browser (instant feedback)
@@ -50,6 +50,14 @@ const inches = z
 
 const isoDate = z.iso.date({ message: "Pick a date." });
 
+/** Ticked platforms, sent as "DEPOP,INSTAGRAM" (see formDataToInput). Blank = not listed anywhere. */
+const platformList = z
+  .string()
+  .optional()
+  .transform((v) => (v ?? "").split(",").map((p) => p.trim()).filter(Boolean))
+  .pipe(z.array(z.enum(PLATFORMS, { message: "Pick Depop, Instagram or flea market." })))
+  .transform(sortPlatforms);
+
 /** Storage path of an uploaded photo: items/<uuid>.webp or .jpg. Blocks path tricks. */
 export const PHOTO_PATH = /^items\/[0-9a-f-]{36}\.(webp|jpg)$/;
 
@@ -91,7 +99,7 @@ export const itemFormSchema = z
     source: optionalText(80),
     acquiredDate: isoDate,
     status: z.enum(FORM_STATUSES, { message: "Pick a status." }),
-    listedOn: z.preprocess(emptyToUndefined, z.enum(LISTED_ON).optional()).transform((v) => v ?? null),
+    listedOn: platformList,
     listPrice: money("the price"),
 
     photoFrontPath: photoPath,
@@ -101,7 +109,7 @@ export const itemFormSchema = z
     ...measurementShape,
   })
   .superRefine((item, ctx) => {
-    if (item.status === "LISTED" && !item.listedOn) {
+    if (item.status === "LISTED" && item.listedOn.length === 0) {
       ctx.addIssue({
         code: "custom",
         path: ["listedOn"],
@@ -152,12 +160,12 @@ export const ITEM_FORM_FIELDS = [
   ...MEASUREMENT_KEYS.map(measurementField),
 ] as const satisfies readonly (keyof ItemFormInput)[];
 
-/** Reads the item fields out of a submitted form. */
+/** Reads the item fields out of a submitted form. Ticked platforms are joined with commas. */
 export function formDataToInput(formData: FormData): Record<string, string> {
   const input: Record<string, string> = {};
   for (const field of ITEM_FORM_FIELDS) {
-    const value = formData.get(field);
-    input[field] = typeof value === "string" ? value : "";
+    const values = formData.getAll(field).filter((v): v is string => typeof v === "string");
+    input[field] = field === "listedOn" ? values.join(",") : (values[0] ?? "");
   }
   return input;
 }
