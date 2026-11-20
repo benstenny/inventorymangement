@@ -4,7 +4,17 @@ import { useDeferredValue, useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { SearchIcon } from "@/components/icons";
 import { chipClass, chipSelectedPressed, groupClass, inputClass } from "@/components/ui/styles";
-import { FILTERS, filterCounts, filterItems, filterLabels, type Filter, type ListItem } from "@/lib/items/list";
+import {
+  FILTERS,
+  SECTION_LABELS,
+  filterCounts,
+  filterItems,
+  filterLabels,
+  groupBySection,
+  stockSummary,
+  type Filter,
+  type ListItem,
+} from "@/lib/items/list";
 import { ItemRow } from "./item-row";
 
 type Props = {
@@ -29,7 +39,11 @@ const EMPTY_FILTER: Record<Exclude<Filter, "all">, { message: string; hint: stri
   },
 };
 
-/** Search, filter chips and the photo-first list. Filtering happens right here, so it's instant. */
+/**
+ * The day at a glance, search, filter chips and the photo-first list. Under "All" the list is
+ * grouped by what to do next (to ship, to prep, listed, shipped). Filtering happens right here,
+ * so it's instant.
+ */
 export function InventoryList({ items, staleDays, initialFilter, initialQuery }: Props) {
   const [filter, setFilter] = useState(initialFilter);
   const [query, setQuery] = useState(initialQuery);
@@ -58,8 +72,12 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
     );
   }
 
+  const summary = stockSummary(items);
+
   return (
     <>
+      {summary && <p className="-mt-2 mb-4 text-[15px] font-semibold text-muted tabular">{summary}</p>}
+
       <search className="relative">
         <SearchIcon size={20} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-pink" />
         <label htmlFor="inventory-search" className="sr-only">
@@ -83,7 +101,7 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
       <div
         role="group"
         aria-label="Show"
-        className="-mx-gutter mt-3 flex gap-2 overflow-x-auto px-gutter pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:px-0"
+        className="mt-3 flex flex-wrap gap-2"
       >
         {FILTERS.map((f) => (
           <button
@@ -105,16 +123,21 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
       <p role="status" className="sr-only">
         {shown.length === 1 ? "1 item" : `${shown.length} items`}
       </p>
-      <div className="mt-4">
-        {shown.length > 0 ? (
-          <ul
-            aria-label="Your items"
-            className={`${groupClass} divide-y divide-hairline px-4 lg:grid lg:grid-cols-2 lg:gap-3 lg:divide-y-0 lg:bg-transparent lg:px-0 lg:shadow-none lg:ring-0`}
-          >
-            {shown.map((item) => (
-              <ItemRow key={item.id} item={item} />
+      <div className="mt-5">
+        {shown.length > 0 && filter === "all" ? (
+          <div className="flex flex-col gap-7">
+            {groupBySection(shown).map(({ section, items: sectionItems }) => (
+              <section key={section} aria-labelledby={`section-${section}`}>
+                <h2 id={`section-${section}`} className="mb-2.5 flex items-baseline gap-2 px-1 text-[20px] font-bold">
+                  {SECTION_LABELS[section]}
+                  <span className="tabular text-[15px] font-semibold text-muted">{sectionItems.length}</span>
+                </h2>
+                <ItemList items={sectionItems} label={SECTION_LABELS[section]} />
+              </section>
             ))}
-          </ul>
+          </div>
+        ) : shown.length > 0 ? (
+          <ItemList items={shown} label="Your items" />
         ) : deferredQuery.trim() ? (
           <div className="flex flex-col items-center px-6 pt-10 text-center">
             <p className="text-lg font-semibold text-balance">Nothing matches “{deferredQuery.trim()}”.</p>
@@ -134,5 +157,18 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
         )}
       </div>
     </>
+  );
+}
+
+function ItemList({ items, label }: { items: ListItem[]; label: string }) {
+  return (
+    <ul
+      aria-label={label}
+      className={`${groupClass} divide-y divide-hairline px-4 lg:grid lg:grid-cols-2 lg:gap-3 lg:divide-y-0 lg:bg-transparent lg:px-0 lg:shadow-none lg:ring-0`}
+    >
+      {items.map((item) => (
+        <ItemRow key={item.id} item={item} />
+      ))}
+    </ul>
   );
 }

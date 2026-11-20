@@ -20,37 +20,39 @@
  */
 
 :root {
-  /* Page and text: pale-pink cards on a bubblegum page, deep plum ink. */
-  --bg: #fbddec;             /* the kit's page pink (between pink 1 and 2) */
-  --surface: #fceef6;        /* pink 1: cards and grouped sections */
-  --surface-muted: #fff7fb;  /* photo wells, skeletons */
+  /* Three clear layers: bubblegum page, warm near-white cards with a pink rim, white fields. */
+  --bg: #f9d3e5;             /* the kit's page pink, between pink 2 and 3 */
+  --surface: #fff7fb;        /* cards and grouped sections (1.3:1 off the page, plus rim and shadow) */
+  --surface-muted: #fceef6;  /* pink 1: photo wells and skeletons, so they show inside cards */
   --surface-raised: #ffffff; /* inputs, chips, switch tracks */
-  --text: #291939;           /* purple 7 */
-  --text-muted: #6b5577;     /* 5.2:1 on the page */
+  --text: #291939;           /* purple 7: titles and what she types */
+  --text-muted: #6b5577;     /* 4.9:1 on the page */
   --border: #f8b6d5;         /* pink 3 */
   --hairline: #facee3;       /* pink 2 */
 
   /* Inks. Text-safe shades (≥4.5:1 on the page) carry words; glow shades only decorate. */
-  --ink-lilac: #653d8f;      /* purple 6: Inventory tab, links */
+  --ink-lilac: #653d8f;      /* purple 6: navigation, SKU and bin details */
   --ink-lilac-glow: #aa89cc; /* purple 5 */
-  --ink-pink: #ad2967;       /* labels, typed text, prices, titles (pink 6, deepened) */
+  --ink-pink: #ad2967;       /* labels, prices, titles, chip labels (pink 6, deepened) */
   --ink-pink-glow: #f168a9;  /* pink 5: the kit's hot pink */
-  --ink-aqua: #4e655d;       /* done ticks (mint 6, deepened) */
+  --ink-aqua: #0e7a5c;       /* mint: "done" ticks and the Money tab (5:1 on cards, 3.9:1 on the page: icons only there) */
   --ink-aqua-glow: #a2c8bb;  /* mint 5 */
 
   --accent: #d43580;         /* pink 6: primary buttons, white label 4.6:1 */
   --on-accent: #ffffff;
-  --success: #4e655d;
+  --success: #0e7a5c;
   --warning: #9c4a12;        /* orange 6, deepened */
   --danger: #b0232a;
   --focus: #d43580;
-  --title-shadow: #f8b6d5;   /* the bubble drop under large titles */
+  --title-shadow: #f168a9;   /* the kit's "Pink Shadow STRONG" drop under large titles */
+  /* Soft shine inside white chips and outline buttons (light: faint pink depth). */
+  --pearl: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 -3px 8px rgb(212 53 128 / 0.1);
   --edge: #ffffff;           /* the kit's white rim on buttons, chips and focused fields */
 
   /* The one holographic finish. Reserved for SOLD. */
   --holo: linear-gradient(115deg, #facee3 0%, #ccf2ff 30%, #e0f7ef 52%, #e5d9f2 76%, #ffdec7 90%, #facee3 100%);
 
-  --bar-glass: rgb(252 238 246 / 0.86);
+  --bar-glass: rgb(255 247 251 / 0.86);
   color-scheme: light;
 }
 
@@ -79,6 +81,7 @@
     --danger: #ff8a8f;
     --focus: #f78dc3;
     --title-shadow: #601438;
+    --pearl: inset 0 1px 0 rgb(255 255 255 / 0.1);
     --edge: rgb(255 255 255 / 0.22);
 
     --bar-glass: rgb(41 25 57 / 0.84);
@@ -131,18 +134,19 @@
   --radius-card: 16px;
   --radius-pill: 999px;
 
-  --shadow-card: 0 1px 2px rgb(96 20 56 / 0.06), 0 4px 14px rgb(96 20 56 / 0.07);
+  --shadow-card: 0 1px 2px rgb(96 20 56 / 0.08), 0 6px 18px rgb(96 20 56 / 0.09);
   --shadow-float: 0 6px 18px rgb(241 104 169 / 0.4), 0 2px 4px rgb(96 20 56 / 0.12);
-  /* The kit's glossy candy fill: white shine on top, deeper pink underneath. */
-  --shadow-gloss: inset 0 -2px 4px rgb(212 53 128 / 0.75), inset 0 2px 8px rgb(255 255 255 / 0.6),
-    inset 0 -4px 12px rgb(212 53 128 / 0.65), inset 2px 4px 12px rgb(255 255 255 / 0.65);
-  /* Gloss plus the pink drop: the one primary button. */
-  --shadow-candy: inset 0 -2px 4px rgb(212 53 128 / 0.75), inset 0 2px 8px rgb(255 255 255 / 0.6),
-    inset 0 -4px 12px rgb(212 53 128 / 0.65), inset 2px 4px 12px rgb(255 255 255 / 0.65),
-    2px 2px 4px rgb(241 75 154 / 0.6);
-  /* Soft pearly shine for outline buttons and chips. */
-  --shadow-pearl: inset 0 2px 8px rgb(255 255 255 / 0.6), inset 0 -4px 16px rgb(212 53 128 / 0.16),
-    inset 2px 4px 12px rgb(255 255 255 / 0.65);
+  /*
+   * The kit's candy gloss, kept crisp: a darker rim at the bottom and a hairline of light at the
+   * top. The highlight streak itself is the `gloss` utility below (a background layer), so the
+   * edges stay sharp instead of blurring.
+   */
+  --shadow-gloss: inset 0 -2px 3px rgb(140 20 80 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.55);
+  /* Gloss plus the pink drop: the one primary button and the Add tab. */
+  --shadow-candy: inset 0 -2px 3px rgb(140 20 80 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.55),
+    0 3px 8px rgb(212 53 128 / 0.35);
+  /* Soft pearly shine for white chips and outline buttons (themed, see --pearl). */
+  --shadow-pearl: var(--pearl);
   /* Pink halo on a focused field. */
   --shadow-glow: 0 0 0 1px rgb(241 104 169 / 0.25), 2px 4px 12px 2px rgb(247 141 195 / 0.35),
     -2px -4px 12px 2px rgb(247 141 195 / 0.35);
@@ -232,12 +236,34 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
-/* Large title: bold Oxanium in pink, sitting on a soft candy drop. */
+/*
+ * Candy highlight streak, like the kit's: a pill of white light inset along the top edge,
+ * drawn under the label (isolation + z-index -1) and ending above the letters, so white text
+ * keeps its full contrast on bg-accent.
+ */
+@utility gloss {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 3px;
+    left: 12%;
+    right: 12%;
+    height: 28%;
+    border-radius: 999px;
+    background: linear-gradient(to bottom, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.12));
+    pointer-events: none;
+  }
+}
+
+/* Large title: bold Oxanium in pink, sitting on the kit's hot-pink drop. */
 .bubble-title {
   font-family: var(--font-display);
   font-weight: 800;
   color: var(--ink-pink);
-  text-shadow: 2px 3px 0 var(--title-shadow);
+  text-shadow: 2px 2px 0 var(--title-shadow);
   letter-spacing: 0.01em;
   line-height: 1.05;
 }

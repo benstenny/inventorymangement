@@ -20,7 +20,7 @@ export function ItemRow({ item }: { item: ListItem }) {
   const [doneAtFirst] = useState(item.prep);
 
   return (
-    <li className="relative flex gap-3 py-3 lg:rounded-card lg:bg-surface lg:p-3 lg:shadow-card lg:ring-1 lg:ring-hairline">
+    <li className="relative flex gap-3.5 py-3.5 lg:rounded-card lg:bg-surface lg:p-3 lg:shadow-card lg:ring-1 lg:ring-border">
       <Photo url={item.photoUrl} sold={sold} soldLabel={STATUS_LABELS[item.status]} />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -35,7 +35,7 @@ export function ItemRow({ item }: { item: ListItem }) {
         </div>
 
         <div className="mt-0.5 flex items-baseline justify-between gap-3 text-[13px] text-muted">
-          <span className="truncate">
+          <span className="truncate text-ink-lilac">
             <span className="tabular font-mono">{item.sku}</span>
             {item.storageLocation && <> · {item.storageLocation}</>}
           </span>
@@ -44,7 +44,7 @@ export function ItemRow({ item }: { item: ListItem }) {
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-2">
           {sold ? (
-            <p className="pb-0.5 text-[13px] text-muted">
+            <p className={`pb-0.5 text-[13px] ${item.status === "SOLD" ? "font-semibold text-ink-pink" : "text-muted"}`}>
               {item.status === "SOLD" ? "Sold. Waiting to ship." : "Shipped."}
             </p>
           ) : item.stale ? (
@@ -63,7 +63,7 @@ export function ItemRow({ item }: { item: ListItem }) {
 
 function Photo({ url, sold, soldLabel }: { url: string | null; sold: boolean; soldLabel: string }) {
   return (
-    <div className="relative w-[72px] shrink-0 self-start">
+    <div className="relative w-24 shrink-0 self-start">
       {url ? (
         // Signed Supabase links change every hour, so next/image's cache wouldn't help here.
         // eslint-disable-next-line @next/next/no-img-element
@@ -76,12 +76,12 @@ function Photo({ url, sold, soldLabel }: { url: string | null; sold: boolean; so
         />
       ) : (
         <div className="flex aspect-[4/5] w-full items-center justify-center rounded-control border-2 border-dashed border-ink-lilac-glow/60 bg-surface-muted text-ink-lilac">
-          <CameraIcon size={22} />
+          <CameraIcon size={26} />
           <span className="sr-only">No photo yet</span>
         </div>
       )}
       {sold && (
-        <span className="holo absolute -top-1.5 -left-1.5 -rotate-6 rounded-[8px] px-1.5 py-0.5 text-[11px] font-extrabold tracking-wide uppercase">
+        <span className="holo absolute -top-2 -left-2 -rotate-6 rounded-[8px] px-2 py-0.5 text-[13px] font-extrabold tracking-wide uppercase">
           {soldLabel}
         </span>
       )}

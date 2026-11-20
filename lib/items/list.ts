@@ -147,3 +147,52 @@ export function filterCounts(items: readonly ListItem[], query: string): Record<
   const found = items.filter((item) => matchesSearch(item, query));
   return Object.fromEntries(FILTERS.map((f) => [f, found.filter(MATCHES[f]).length])) as Record<Filter, number>;
 }
+
+/**
+ * The home list is grouped by what she has to do next, most urgent first:
+ * sold items to pack (she ships within days), finds still being prepped, what's listed,
+ * then what's already gone.
+ */
+export const SECTIONS = ["to-ship", "to-prep", "listed", "shipped"] as const;
+export type Section = (typeof SECTIONS)[number];
+
+export const SECTION_LABELS: Record<Section, string> = {
+  "to-ship": "To ship",
+  "to-prep": "To prep",
+  listed: "Listed",
+  shipped: "Shipped",
+};
+
+export function sectionOf(status: ListItem["status"]): Section {
+  switch (status) {
+    case "SOLD":
+      return "to-ship";
+    case "SOURCED":
+    case "NEEDS_PHOTOS":
+      return "to-prep";
+    case "LISTED":
+      return "listed";
+    default:
+      return "shipped";
+  }
+}
+
+/** Items in section order, keeping their order within a section. Empty sections are left out. */
+export function groupBySection(items: readonly ListItem[]): { section: Section; items: ListItem[] }[] {
+  return SECTIONS.map((section) => ({ section, items: items.filter((item) => sectionOf(item.status) === section) })).filter(
+    (group) => group.items.length > 0,
+  );
+}
+
+/** "1 to ship · 3 to prep · 7 listed": the line under the title. Only parts with something in them. */
+export function stockSummary(items: readonly ListItem[]): string {
+  const count = (section: Section) => items.filter((item) => sectionOf(item.status) === section).length;
+  return [
+    [count("to-ship"), "to ship"],
+    [count("to-prep"), "to prep"],
+    [count("listed"), "listed"],
+  ]
+    .filter(([n]) => (n as number) > 0)
+    .map(([n, label]) => `${n} ${label}`)
+    .join(" · ");
+}

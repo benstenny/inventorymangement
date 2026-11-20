@@ -6,8 +6,8 @@ Raw values live only in `app/globals.css`; restyling means changing them there.
 ## The idea
 Her stock, kept in a bubblegum-pink Y2K binder. Colors come from the Figma community kit
 "Y2K UI Kit | Retro Bubblegum Components" (adopted Nov 2026; the palette may still change, so
-it lives only in tokens). Pale-pink cards sit on a bubblegum page; controls are glossy candy pills
-with the kit's white rim. The **shell is plain iOS**: large titles,
+it lives only in tokens). Three clear layers: a bubblegum page, warm near-white cards with a pink rim,
+white fields. Controls are glossy candy pills with the kit's white rim. The **shell is plain iOS**: large titles,
 a translucent bottom tab bar, inset grouped sections, switches, disclosure chevrons, sheets.
 The Y2K world shows up in only four places, and nowhere else:
 
@@ -42,22 +42,23 @@ If a new screen needs more "Y2K" than that, it's becoming a costume. Push back.
 ### Color (light / dark switch automatically)
 | Token | Class examples | Use |
 |---|---|---|
-| `bg` / `surface` | `bg-bg`, `bg-surface` | Bubblegum page; pale-pink grouped sections and cards |
+| `bg` / `surface` | `bg-bg`, `bg-surface` | Bubblegum page (#F9D3E5); warm near-white cards (#FFF7FB) with `ring-border` |
 | `surface-raised` | `bg-surface-raised` | White: inputs, chips, switch tracks |
-| `surface-muted` | `bg-surface-muted` | Photo wells, skeletons |
+| `surface-muted` | `bg-surface-muted` | Pink 1: photo wells and skeletons, so they show inside cards |
 | `edge` | `border-edge`, `ring-edge` | The kit's white rim on buttons, chips, cards and focused fields |
-| `text` | `text-text` | Deep plum ink: main text, selected chips |
+| `text` | `text-text` | Deep plum ink: item titles, what she types, done-step labels |
 | `muted` | `text-muted` | Secondary text, hints |
 | `hairline` / `border` | `border-hairline`, `ring-hairline` | Dividers, section edges |
-| `ink-lilac` | `text-ink-lilac` | Purple: Inventory tab, back buttons, links |
-| `ink-pink` | `text-ink-pink` | Labels, typed text, chip labels, prices, large titles |
-| `ink-aqua` | `text-ink-aqua`, `bg-ink-aqua` | Mint: done ticks, the washed switch, Money tab |
+| `ink-lilac` | `text-ink-lilac` | Purple: navigation (Inventory tab, back links) and the SKU · bin line in rows |
+| `ink-pink` | `text-ink-pink` | Labels, chip labels, prices, large titles. Not typed text. |
+| `ink-aqua` | `text-ink-aqua` | Mint (#0E7A5C): means "done". Tick icons and the Money tab. Text in mint only on cards (5:1); on the page it's icon-only (3.9:1), with a plum label beside it |
 | `*-glow` | `text-ink-lilac-glow` | Decoration only (title fill, empty-state art). Never for words. |
 | `accent` / `on-accent` | `bg-accent text-on-accent` | The one primary button per screen (hot pink) |
 | `success` / `warning` / `danger` | `text-danger` | States |
 | `bar-glass` | `bg-bar-glass` | Translucent iOS tab bar and photo labels |
 
-The text-safe ink shades are at least 4.5:1 on the page. The `*-glow` shades are not. Where the
+Each colour has one job: pink = labels and money, plum = her words, purple = where things are, mint = done,
+orange = "do something about this price". The text-safe ink shades are at least 4.5:1 on the page. The `*-glow` shades are not. Where the
 kit's own shade was too light for words (its hot pink, mint, orange), the token uses a deepened
 version and the kit shade becomes the glow. The full kit ramps are listed at the top of
 `app/globals.css`; to change the palette, change the token values there.
@@ -73,10 +74,13 @@ version and the kit shade becomes the glow. The full kit ramps are listed at the
 - `rounded-pill` for every control: buttons, single-line inputs, search, chips, switches, nav items
   (the kit is all pills). `rounded-card` (16px) for sections, photos and multi-line text boxes.
   `rounded-control` (12px) only for list photos and skeletons.
-- Kit effects: `shadow-candy` (gloss + pink drop) on the one primary button and the Add tab;
-  `shadow-gloss` (gloss only) on selected chips and the switch knob; `shadow-pearl` (soft white shine)
-  on chips, outline buttons and switch tracks; `shadow-glow` (pink halo) on a focused field;
-  `shadow-pressed` while pressed. `shadow-card` for grouped sections, `shadow-sticker` for the holo sticker.
+- Kit effects: the `gloss` utility draws the candy highlight, a crisp pill of white light inset along
+  the top, under the label and ending above the letters (so white text keeps full contrast). Pair it with
+  `bg-accent`: the primary button, the Add tab, selected chips. `shadow-candy` (hairline top light,
+  darker bottom rim, pink drop) on the primary button and Add tab; `shadow-gloss` (same, no drop) on
+  selected chips and the switch knob; `shadow-pearl` (themed soft shine, faint in dark mode) on white
+  chips, outline buttons and switch tracks; `shadow-glow` (pink halo) on a focused field;
+  `shadow-pressed` while pressed. Keep gloss crisp: no stacks of blurry insets. `shadow-card` for grouped sections, `shadow-sticker` for the holo sticker.
 
 ### Motion
 - `ease-out-expo`, 150-200ms. Buttons and tiles scale down slightly while pressed.
@@ -97,13 +101,19 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
   Collapsible ones use `<details>` with a chevron that turns.
 - **Input**: white pill with a pink rim, pink typing. Focus: white rim plus pink halo. Red rim on error.
   Label above in pink (`labelClass`), hint or error below in 13px. Search is the same pill with a pink icon.
-- **Chips**: white pills with the white rim and a pink label; selected ones turn into glossy candy
-  (hot pink, white label). `Chips` picks one, `MultiChips` picks any. Filter chips and next-step pills share the style.
+- **Chips**: white pills with a pink rim and a pink label; selected ones turn into glossy candy
+  (hot pink, `gloss` highlight, white rim, white label). `Chips` picks one, `MultiChips` picks any. Filter chips and next-step pills share the style.
 - **Switch**: white pill track with a pink rim; the knob is pale pink when off, glossy hot pink when on
   (see the "Washed and steamed" row).
 - **Photo tile**: 4:5, dashed purple outline when empty, label badge on glass when filled.
 - **PrepChecklist**: gel ticks (mint) and open gel circles (muted).
-- **Item row** (`components/inventory/item-row.tsx`): 72px 4:5 photo, title, SKU and bin, pink price
+- **Inventory home** (`components/inventory/inventory-list.tsx`): a summary line under the title
+  ("1 to ship · 4 to prep · 3 listed"), search, filter chips that wrap (never hidden off-screen), then
+  under "All" the list grouped by what to do next: To ship, To prep, Listed, Shipped (`groupBySection`
+  in lib/items/list.ts). Section headings are 20px bold plum with a muted count; 28px between sections.
+  Other filters show one flat list.
+- **Item row** (`components/inventory/item-row.tsx`): 96px 4:5 photo (it sets the row height), title,
+  SKU and bin in purple, pink price
   over "paid $x", four compact prep marks, and one pill for the next step ("Mark washed", "Mark listed"
   save on the spot; "Measure", "Add photos", "Add a price" open the item). The whole row opens the item.
   Listed 30+ days swaps the marks for a warning-coloured nudge to lower the price.

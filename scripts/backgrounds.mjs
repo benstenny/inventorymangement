@@ -34,7 +34,7 @@ const contrast = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 
 // Must match the tokens in app/globals.css.
 const MODES = {
-  light: { page: hex("#fbddec"), texts: ["#ad2967", "#6b5577", "#b0232a", "#291939"], toward: 255, tint: 0.3 },
+  light: { page: hex("#f9d3e5"), texts: ["#ad2967", "#6b5577", "#b0232a", "#291939"], toward: 255, tint: 0.3 },
   dark: { page: hex("#291939"), texts: ["#f78dc3", "#ddccee", "#fceef6"], toward: 0, tint: 0.45 },
 };
 const TARGET = 4.6;

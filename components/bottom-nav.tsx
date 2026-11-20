@@ -82,7 +82,7 @@ function TabLink({ link, active }: { link: NavLink; active: boolean }) {
         aria-current={active ? "page" : undefined}
         className="group flex flex-1 flex-col items-center justify-center gap-0.5"
       >
-        <span className="flex h-9 w-14 items-center justify-center rounded-pill border-2 border-edge bg-accent text-on-accent shadow-candy transition-transform duration-150 ease-out-expo group-active:scale-90">
+        <span className="flex h-9 w-14 items-center justify-center rounded-pill border-2 border-edge bg-accent gloss text-on-accent shadow-candy transition-transform duration-150 ease-out-expo group-active:scale-90">
           <Icon size={22} />
         </span>
         <span className={`text-[11px] font-semibold ${active ? link.ink : "text-muted"}`}>{link.label}</span>
@@ -114,7 +114,7 @@ function SideLinks({ pathname }: { pathname: string | null }) {
               aria-current={active ? "page" : undefined}
               className={
                 primary
-                  ? "my-2 flex min-h-touch items-center gap-3 rounded-pill border-2 border-edge bg-accent px-4 font-semibold text-on-accent shadow-candy"
+                  ? "my-2 flex min-h-touch items-center gap-3 rounded-pill border-2 border-edge bg-accent gloss px-4 font-semibold text-on-accent shadow-candy"
                   : `flex min-h-touch items-center gap-3 rounded-pill px-4 font-semibold transition-colors ${
                       active ? `bg-surface-raised shadow-pearl ${ink}` : "text-muted hover:bg-surface-raised hover:text-text"
                     }`

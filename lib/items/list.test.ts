@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { filterCounts, filterItems, heroPhotoPath, parseFilter, toListItem, type InventoryRow } from "./list";
+import {
+  filterCounts,
+  filterItems,
+  groupBySection,
+  heroPhotoPath,
+  parseFilter,
+  sectionOf,
+  stockSummary,
+  toListItem,
+  type InventoryRow,
+} from "./list";
 
 const base: InventoryRow = {
   id: "1",
@@ -120,5 +130,28 @@ describe("parseFilter", () => {
     expect(parseFilter("nope")).toBe("all");
     expect(parseFilter(undefined)).toBe("all");
     expect(parseFilter(["listed"])).toBe("all");
+  });
+});
+
+describe("sections", () => {
+  it("files each status under what she has to do next", () => {
+    expect(sectionOf("SOLD")).toBe("to-ship");
+    expect(sectionOf("SOURCED")).toBe("to-prep");
+    expect(sectionOf("NEEDS_PHOTOS")).toBe("to-prep");
+    expect(sectionOf("LISTED")).toBe("listed");
+    expect(sectionOf("SHIPPED")).toBe("shipped");
+    expect(sectionOf("RETURNED")).toBe("shipped");
+  });
+
+  it("puts sold items first, keeps order inside a section and drops empty sections", () => {
+    const groups = groupBySection(all);
+    expect(groups.map((g) => g.section)).toEqual(["to-ship", "to-prep", "listed"]);
+    expect(groups.map((g) => ids(g.items))).toEqual([["sold"], ["fresh"], ["old", "new"]]);
+  });
+
+  it("sums it up in one line, skipping empty parts", () => {
+    expect(stockSummary(all)).toBe("1 to ship · 1 to prep · 2 listed");
+    expect(stockSummary([listedNew])).toBe("1 listed");
+    expect(stockSummary([])).toBe("");
   });
 });
