@@ -10,14 +10,15 @@ const pillClass = `${chipClass} relative z-10 disabled:opacity-55`;
 
 /**
  * The item's next step in the list. "Mark washed" and "Mark listed" save with one tap;
- * the others open the item, because they need the camera, a tape measure or a price.
+ * "Mark as sold" opens the sale screen; the others open the item, because they need the
+ * camera, a tape measure or a price.
  */
 export function QuickStepButton({ id, action }: { id: string; action: NextAction }) {
   const [state, formAction, pending] = useActionState<QuickStepState, FormData>(quickStepAction, {});
 
-  if (action.kind === "edit") {
+  if (action.kind === "edit" || action.kind === "sell") {
     return (
-      <Link href={`/items/${id}`} className={pillClass}>
+      <Link href={action.kind === "sell" ? `/items/${id}/sold` : `/items/${id}`} className={pillClass}>
         {action.label}
       </Link>
     );

@@ -123,5 +123,13 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
   The pictures are pre-softened by `scripts/backgrounds.mjs`: each is squeezed into a light band (light
   mode) or a dim band (dark mode) so every text colour still reads at 4.5:1 on its darkest/lightest 1%.
   Cards and fields stay solid on top. Never show a raw wallpaper behind text.
+- **Mark as sold** (`components/sale/sale-form.tsx`, `/items/[id]/sold`): item summary card, "Sold on"
+  chips, sold for + date, fees (filled in from the platform preset until she edits them) + shipping
+  (hidden for flea market: handed over), "Paid by" chips for Instagram and flea market, optional note,
+  then a live profit card (big pink figure, red if a loss, with the sum spelled out) and an orange
+  "Take it down from …" note when it's listed elsewhere. Pinned "Mark as sold" button. After saving,
+  a "Sold for $x" card with the profit, what happens next, and the take-down note again.
+  Reached from the row's "Mark as sold" pill (listed, prepped items) or the item page.
+- **Text box** (`textareaClass`): the input look with card corners; never pill ends on multi-line fields.
 - **Holo sticker** (`holo` class): small tilted label, only for Sold or Shipped.
 - **Empty state**: hanger drawing, one sentence, one hint, the action that fixes it.

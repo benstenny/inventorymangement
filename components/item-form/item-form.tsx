@@ -5,9 +5,10 @@ import { startTransition, useActionState, useCallback, useEffect, useRef, useSta
 import { saveItem, type SaveItemState } from "@/app/(app)/items/actions";
 import { Chips, MultiChips } from "@/components/ui/chips";
 import { Field } from "@/components/ui/field";
+import { MoneyInput } from "@/components/ui/money-input";
 import { GelTick, ChevronRightIcon } from "@/components/icons";
-import { groupClass, inputClass, labelClass, primaryButtonClass } from "@/components/ui/styles";
-import { centsToInput, formatCents, parseMoneyToCents } from "@/lib/money";
+import { groupClass, inputClass, labelClass, primaryButtonClass, textareaClass } from "@/components/ui/styles";
+import { formatCents } from "@/lib/money";
 import { suggestPrices, type FeePreset, type PricingSettings } from "@/lib/pricing";
 import { formatInches, measurementField, measurementsFor, type Measurements } from "@/lib/items/measurements";
 import {
@@ -387,7 +388,7 @@ function ItemFields({
               rows={2}
               defaultValue={values.flaws ?? ""}
               placeholder="None"
-              className={`${inputClass} rounded-card py-2.5`}
+              className={textareaClass}
             />
           </Field>
 
@@ -398,7 +399,7 @@ function ItemFields({
               rows={3}
               defaultValue={values.description ?? ""}
               placeholder="Fabric, era, how it fits"
-              className={`${inputClass} rounded-card py-2.5`}
+              className={textareaClass}
             />
           </Field>
 
@@ -595,36 +596,3 @@ function SuggestInput({
   );
 }
 
-function MoneyInput({
-  id,
-  name,
-  cents,
-  invalid,
-  onCentsChange,
-}: {
-  id: string;
-  name: string;
-  cents?: number | null;
-  invalid: boolean;
-  onCentsChange?: (cents: number | null) => void;
-}) {
-  return (
-    <div className="relative">
-      <span aria-hidden className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center font-semibold text-muted">
-        $
-      </span>
-      <input
-        id={id}
-        name={name}
-        type="text"
-        inputMode="decimal"
-        autoComplete="off"
-        defaultValue={cents === null || cents === undefined ? "" : centsToInput(cents)}
-        placeholder="0"
-        aria-invalid={invalid || undefined}
-        onChange={onCentsChange && ((e) => onCentsChange(e.target.value.trim() ? parseMoneyToCents(e.target.value) : null))}
-        className={`${inputClass} tabular pl-7`}
-      />
-    </div>
-  );
-}

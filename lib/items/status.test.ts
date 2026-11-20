@@ -32,8 +32,11 @@ describe("nextAction", () => {
     });
   });
 
-  it("has nothing to do once it's listed and prepped", () => {
-    expect(nextAction({ status: "LISTED", listPrice: 2500, prep: { ...readyToList, listed: true } })).toBeNull();
+  it("offers Mark as sold once it's listed and prepped", () => {
+    expect(nextAction({ status: "LISTED", listPrice: 2500, prep: { ...readyToList, listed: true } })).toEqual({
+      kind: "sell",
+      label: "Mark as sold",
+    });
   });
 
   it("still points out a missed step on a listed item", () => {

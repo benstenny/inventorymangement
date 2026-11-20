@@ -5,7 +5,9 @@ import { z } from "zod";
 import { ArchiveButton } from "@/components/item-form/archive-button";
 import { FormSkeleton } from "@/components/item-form/form-skeleton";
 import { ItemForm } from "@/components/item-form/item-form";
+import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
+import { secondaryButtonClass } from "@/components/ui/styles";
 import { PrepChecklist } from "@/components/prep-checklist";
 import { getCategories, getFormSettings, getItem } from "@/lib/items/data";
 import { STATUS_LABELS } from "@/lib/items/options";
@@ -48,7 +50,12 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
         back={{ href: "/", label: "Inventory" }}
         trailing={<span className="tabular font-mono text-[15px] text-muted">{item.sku}</span>}
       >
-        <PrepChecklist done={checklist} className="mb-6" />
+        <PrepChecklist done={checklist} className="mb-4" />
+        {editableStatus && !item.archived_at && (
+          <Link href={`/items/${item.id}/sold`} className={`${secondaryButtonClass} mb-6 w-full sm:w-auto`}>
+            Mark as sold
+          </Link>
+        )}
       </PageHeader>
 
       {item.archived_at && (

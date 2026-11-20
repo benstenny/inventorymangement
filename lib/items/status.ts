@@ -5,7 +5,8 @@ import { PREP_STEPS, type PrepStep } from "./prep";
  * One-tap status changes from the inventory list. Each unsold item shows the
  * next thing to do. Two of them save on the spot ("Mark washed", "Mark listed");
  * the rest need the item screen (measuring, photos, a price).
- * Sold and shipped items are moved on by "Mark as sold" and "Pack today", not here.
+ * Once it's listed and prepped, the next step is "Mark as sold", which opens the sale screen.
+ * Sold and shipped items are moved on by "Pack today", not here.
  */
 
 /** The steps that can be done with a single tap in the list. */
@@ -14,14 +15,15 @@ export type QuickStep = (typeof QUICK_STEPS)[number];
 
 export type NextAction =
   | { kind: "tap"; step: QuickStep; label: string }
-  | { kind: "edit"; label: string };
+  | { kind: "edit"; label: string }
+  | { kind: "sell"; label: string };
 
 /** Still in her bins: sourced, waiting for photos, or listed. */
 export function isInStock(status: Status): boolean {
   return (FORM_STATUSES as readonly Status[]).includes(status);
 }
 
-/** What the item's button in the list should do, or null when there's nothing left to prep. */
+/** What the item's button in the list should do: the next prep step, then "Mark as sold". */
 export function nextAction(item: {
   status: Status;
   listPrice: number | null;
@@ -41,7 +43,7 @@ export function nextAction(item: {
         ? { kind: "edit", label: "Add a price" }
         : { kind: "tap", step: "listed", label: "Mark listed" };
     default:
-      return null;
+      return item.status === "LISTED" ? { kind: "sell", label: "Mark as sold" } : null;
   }
 }
 

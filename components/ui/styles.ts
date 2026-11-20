@@ -4,10 +4,13 @@
  * Text field, from the Y2K kit: a white pill with a pink rim. What she types is plum, so
  * her words read apart from the pink labels.
  * Focus swaps the rim for the kit's white edge and a pink halo. Red rim on error.
- * Multi-line fields add `rounded-card` so the corners don't balloon.
+ * Multi-line fields use `textareaClass` instead, so the corners don't balloon.
  */
 export const inputClass =
   "min-h-touch w-full rounded-pill border-2 border-border bg-surface-raised px-4 text-base font-medium text-text placeholder:text-muted placeholder:font-normal transition-[box-shadow,border-color] duration-150 ease-out-expo focus:border-edge focus:shadow-glow focus:outline-none aria-invalid:border-danger";
+
+/** Multi-line text box: same look as a field, card corners instead of pill ends. */
+export const textareaClass = `${inputClass.replace("rounded-pill", "rounded-card")} py-2.5`;
 
 /** The one primary action per screen: the kit's glossy candy pill. */
 export const primaryButtonClass =

@@ -79,7 +79,8 @@ Version 1 (build in this order)
 3. Inventory list: search, filters (all, needs photos, listed, unsold 30+ days), one-tap status
    changes, prep checklist at a glance (done)
 4. Mark as sold: platform, price, fees (auto from preset), shipping, payment method (Instagram and markets),
-   profit shown immediately, plus a reminder to take it down from the other places it was listed
+   profit shown immediately, plus a reminder to take it down from the other places it was listed (done;
+   flea market sales are handed over, so they skip "To ship")
 5. Pack today: sold but not shipped, oldest first, with ship-by date; take a proof photo, then mark shipped
 6. Money: add an expense, monthly report (sales, item costs, fees, shipping, expenses, profit,
    per-item table, spend vs budget), CSV export (monthly backup)

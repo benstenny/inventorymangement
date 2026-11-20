@@ -7,6 +7,7 @@ import type { Measurements } from "./measurements";
 import { quickStepPatch, type QuickStep, type QuickStepResult } from "./status";
 import { FORM_STATUSES, PHOTO_SLOTS, type PhotoSlot, type Platform, type Status } from "./options";
 import type { ItemFormValues } from "./schema";
+import { salePatch, type SalePatch, type SaleValues } from "./sale";
 
 /**
  * All item reads and writes go through here. Runs on the server with the
@@ -336,4 +337,79 @@ async function rememberLastUsed(values: ItemFormValues) {
   };
   // Single-row table: the primary key is always true.
   await supabase.from("settings").update({ last_used: next }).eq("id", true);
+}
+
+/** Everything the "Mark as sold" screen needs: the item, its front photo and the fee presets. */
+export async function getSaleItem(id: string): Promise<{
+  item: Pick<ItemRow, "id" | "sku" | "title" | "status" | "source_cost" | "list_price" | "listed_on">;
+  photoUrl: string | null;
+  feePresets: FeePresets;
+} | null> {
+  const supabase = await createClient();
+  const [itemResult, settingsResult] = await Promise.all([
+    supabase
+      .from("items")
+      .select("id, sku, title, status, source_cost, list_price, listed_on, photo_front_path, photo_styled_path, photo_back_path")
+      .eq("id", id)
+      .is("archived_at", null)
+      .maybeSingle<
+        Pick<ItemRow, "id" | "sku" | "title" | "status" | "source_cost" | "list_price" | "listed_on"> & {
+          photo_front_path: string | null;
+          photo_styled_path: string | null;
+          photo_back_path: string | null;
+        }
+      >(),
+    supabase.from("settings").select("fee_presets").single(),
+  ]);
+  if (itemResult.error) throw new Error(`Couldn't load the item: ${itemResult.error.message}`);
+  if (!itemResult.data) return null;
+  const { photo_front_path, photo_styled_path, photo_back_path, ...item } = itemResult.data;
+  const photoUrl = await signedPhotoUrl(photo_front_path ?? photo_styled_path ?? photo_back_path);
+  return { item, photoUrl, feePresets: (settingsResult.data?.fee_presets ?? {}) as FeePresets };
+}
+
+/** Records a sale. Re-checks on the server that it's still unsold, so it can't be sold twice. */
+export async function markSold(id: string, sale: SaleValues): Promise<{ ok: true; patch: SalePatch } | { ok: false; message: string }> {
+  const supabase = await createClient();
+  const { data: item, error: loadError } = await supabase
+    .from("items")
+    .select("status")
+    .eq("id", id)
+    .is("archived_at", null)
+    .maybeSingle<Pick<ItemRow, "status">>();
+  if (loadError) throw new Error(`Couldn't load the item: ${loadError.message}`);
+  if (!item) return { ok: false, message: "Couldn't find this item. It may have been removed." };
+
+  const result = salePatch(item, sale);
+  if (!result.ok) return result;
+  const { patch } = result;
+
+  const { data: updated, error } = await supabase
+    .from("items")
+    .update({
+      status: patch.status,
+      sold_platform: patch.soldPlatform,
+      sold_price: patch.soldPrice,
+      sold_date: patch.soldDate,
+      platform_fees: patch.platformFees,
+      shipping_cost: patch.shippingCost,
+      payment_method: patch.paymentMethod,
+      buyer_notes: patch.buyerNotes,
+      shipped_date: patch.shippedDate,
+    })
+    .eq("id", id)
+    // Only if nothing else changed its status in the meantime.
+    .eq("status", item.status)
+    .select("id");
+  if (error) throw new Error(`Couldn't save the sale: ${error.message}`);
+  if (!updated?.length) return { ok: false, message: "This one's already sold." };
+  return result;
+}
+
+/** What she paid for an item, for the profit shown after a sale. */
+export async function getItemCost(id: string): Promise<number> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("items").select("source_cost").eq("id", id).single<{ source_cost: number }>();
+  if (error) throw new Error(`Couldn't load the item: ${error.message}`);
+  return data.source_cost;
 }

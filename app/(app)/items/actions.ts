@@ -3,7 +3,8 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { applyQuickStep, archiveItem, createItem, updateItem } from "@/lib/items/data";
+import { applyQuickStep, archiveItem, createItem, getItemCost, markSold, updateItem } from "@/lib/items/data";
+import { SALE_FORM_FIELDS, parseSaleForm, saleProfit, type SaleFieldErrors } from "@/lib/items/sale";
 import { QUICK_STEPS } from "@/lib/items/status";
 import { formDataToInput, parseItemForm, type FieldErrors } from "@/lib/items/schema";
 
@@ -75,4 +76,38 @@ export async function archiveItemAction(formData: FormData) {
   const id = idSchema.parse(formData.get("id"));
   await archiveItem(id);
   redirect("/");
+}
+
+export type MarkSoldState = {
+  errors?: SaleFieldErrors;
+  formError?: string;
+  /** Set once the sale is saved: what to show on the "Sold!" screen. */
+  sold?: { profit: number; soldPrice: number; handedOver: boolean };
+};
+
+/** "Mark as sold": validates again on the server, records the sale and shows the profit. */
+export async function markSoldAction(_prev: MarkSoldState, formData: FormData): Promise<MarkSoldState> {
+  const id = idSchema.safeParse(formData.get("id"));
+  if (!id.success) return { formError: "Something went wrong. Go back to the item and try again." };
+  const input = Object.fromEntries(SALE_FORM_FIELDS.map((f) => [f, String(formData.get(f) ?? "")]));
+  const parsed = parseSaleForm(input);
+  if (!parsed.ok) return { errors: parsed.errors };
+
+  try {
+    const result = await markSold(id.data, parsed.values);
+    if (!result.ok) return { formError: result.message };
+    const cost = await getItemCost(id.data);
+    const { patch } = result;
+    refresh();
+    return {
+      sold: {
+        profit: saleProfit({ soldPrice: patch.soldPrice, cost, fees: patch.platformFees, shipping: patch.shippingCost }),
+        soldPrice: patch.soldPrice,
+        handedOver: patch.status === "SHIPPED",
+      },
+    };
+  } catch (err) {
+    console.error(err);
+    return { formError: "Couldn't save the sale. Check your internet connection and try again." };
+  }
 }
