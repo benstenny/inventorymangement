@@ -3,7 +3,8 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { applyQuickStep, archiveItem, createItem, getItemCost, markSold, updateItem } from "@/lib/items/data";
+import { applyQuickStep, archiveItem, createItem, getItemCost, markShipped, markSold, updateItem } from "@/lib/items/data";
+import { shipFormSchema } from "@/lib/items/shipping";
 import { SALE_FORM_FIELDS, parseSaleForm, saleProfit, type SaleFieldErrors } from "@/lib/items/sale";
 import { QUICK_STEPS } from "@/lib/items/status";
 import { formDataToInput, parseItemForm, type FieldErrors } from "@/lib/items/schema";
@@ -110,4 +111,25 @@ export async function markSoldAction(_prev: MarkSoldState, formData: FormData): 
     console.error(err);
     return { formError: "Couldn't save the sale. Check your internet connection and try again." };
   }
+}
+
+export type MarkShippedState = { error?: string; shipped?: boolean };
+
+/** "Mark shipped" from Pack today. The proof photo is required (checked again here). */
+export async function markShippedAction(_prev: MarkShippedState, formData: FormData): Promise<MarkShippedState> {
+  const parsed = shipFormSchema.safeParse({
+    id: formData.get("id"),
+    proofPath: formData.get("proofPath") ?? "",
+    shippedDate: formData.get("shippedDate"),
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Something went wrong. Reload and try again." };
+  try {
+    const result = await markShipped(parsed.data);
+    if (!result.ok) return { error: result.message };
+  } catch (err) {
+    console.error(err);
+    return { error: "Couldn't save. Check your internet connection and try again." };
+  }
+  refresh();
+  return { shipped: true };
 }

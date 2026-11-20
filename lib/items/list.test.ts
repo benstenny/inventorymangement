@@ -74,7 +74,7 @@ describe("toListItem", () => {
   it("works out the prep ticks and next step", () => {
     expect(fresh.prep.washed).toBe(false);
     expect(fresh.next?.label).toBe("Mark washed");
-    expect(sold.next).toBeNull();
+    expect(sold.next).toEqual({ kind: "pack", label: "Pack it" });
   });
 });
 

@@ -82,6 +82,7 @@ Version 1 (build in this order)
    profit shown immediately, plus a reminder to take it down from the other places it was listed (done;
    flea market sales are handed over, so they skip "To ship")
 5. Pack today: sold but not shipped, oldest first, with ship-by date; take a proof photo, then mark shipped
+   (done: Pack tab with a count badge; the proof photo is required)
 6. Money: add an expense, monthly report (sales, item costs, fees, shipping, expenses, profit,
    per-item table, spend vs budget), CSV export (monthly backup)
 

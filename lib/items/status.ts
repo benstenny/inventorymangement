@@ -6,7 +6,7 @@ import { PREP_STEPS, type PrepStep } from "./prep";
  * next thing to do. Two of them save on the spot ("Mark washed", "Mark listed");
  * the rest need the item screen (measuring, photos, a price).
  * Once it's listed and prepped, the next step is "Mark as sold", which opens the sale screen.
- * Sold and shipped items are moved on by "Pack today", not here.
+ * Sold items point to Pack today ("Pack it"); shipped ones have nothing left to do.
  */
 
 /** The steps that can be done with a single tap in the list. */
@@ -16,7 +16,8 @@ export type QuickStep = (typeof QUICK_STEPS)[number];
 export type NextAction =
   | { kind: "tap"; step: QuickStep; label: string }
   | { kind: "edit"; label: string }
-  | { kind: "sell"; label: string };
+  | { kind: "sell"; label: string }
+  | { kind: "pack"; label: string };
 
 /** Still in her bins: sourced, waiting for photos, or listed. */
 export function isInStock(status: Status): boolean {
@@ -29,6 +30,7 @@ export function nextAction(item: {
   listPrice: number | null;
   prep: Record<PrepStep, boolean>;
 }): NextAction | null {
+  if (item.status === "SOLD") return { kind: "pack", label: "Pack it" };
   if (!isInStock(item.status)) return null;
   const step = PREP_STEPS.find(({ step }) => !item.prep[step])?.step;
   switch (step) {

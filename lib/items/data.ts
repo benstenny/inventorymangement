@@ -8,6 +8,7 @@ import { quickStepPatch, type QuickStep, type QuickStepResult } from "./status";
 import { FORM_STATUSES, PHOTO_SLOTS, type PhotoSlot, type Platform, type Status } from "./options";
 import type { ItemFormValues } from "./schema";
 import { salePatch, type SalePatch, type SaleValues } from "./sale";
+import { shipByDate, shippedPatch, sortForPacking, type ShipValues } from "./shipping";
 
 /**
  * All item reads and writes go through here. Runs on the server with the
@@ -412,4 +413,107 @@ export async function getItemCost(id: string): Promise<number> {
   const { data, error } = await supabase.from("items").select("source_cost").eq("id", id).single<{ source_cost: number }>();
   if (error) throw new Error(`Couldn't load the item: ${error.message}`);
   return data.source_cost;
+}
+
+export type PackItem = {
+  id: string;
+  sku: string;
+  title: string;
+  storageLocation: string | null;
+  photoUrl: string | null;
+  soldPlatform: Platform | null;
+  soldPrice: number | null;
+  soldDate: string | null;
+  shipBy: string | null;
+  buyerNotes: string | null;
+};
+
+/** Sold, not yet shipped, oldest sale first, with the ship-by date. */
+export async function getPackList(): Promise<PackItem[]> {
+  const supabase = await createClient();
+  const [itemsResult, settingsResult] = await Promise.all([
+    supabase
+      .from("items")
+      .select(
+        "id, sku, title, storage_location, photo_front_path, photo_styled_path, photo_back_path, sold_platform, sold_price, sold_date, buyer_notes",
+      )
+      .eq("status", "SOLD")
+      .is("archived_at", null)
+      .order("sold_date", { ascending: true })
+      .returns<
+        {
+          id: string;
+          sku: string;
+          title: string;
+          storage_location: string | null;
+          photo_front_path: string | null;
+          photo_styled_path: string | null;
+          photo_back_path: string | null;
+          sold_platform: Platform | null;
+          sold_price: number | null;
+          sold_date: string | null;
+          buyer_notes: string | null;
+        }[]
+      >(),
+    supabase.from("settings").select("ship_within_days").single<{ ship_within_days: number }>(),
+  ]);
+  if (itemsResult.error) throw new Error(`Couldn't load what to pack: ${itemsResult.error.message}`);
+  const shipWithin = settingsResult.data?.ship_within_days ?? 5;
+  const rows = itemsResult.data ?? [];
+  const photoUrls = await signedPhotoUrls(rows.map((r) => r.photo_front_path ?? r.photo_styled_path ?? r.photo_back_path));
+
+  return sortForPacking(
+    rows.map((r, i) => ({
+      id: r.id,
+      sku: r.sku,
+      title: r.title,
+      storageLocation: r.storage_location,
+      photoUrl: photoUrls[i],
+      soldPlatform: r.sold_platform,
+      soldPrice: r.sold_price,
+      soldDate: r.sold_date,
+      shipBy: r.sold_date ? shipByDate(r.sold_date, shipWithin) : null,
+      buyerNotes: r.buyer_notes,
+    })),
+  );
+}
+
+/** How many sold items are waiting to ship (the Pack tab's badge). */
+export async function countToShip(): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("items")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "SOLD")
+    .is("archived_at", null);
+  if (error) throw new Error(`Couldn't count what to pack: ${error.message}`);
+  return count ?? 0;
+}
+
+/** Marks a sold item shipped with its proof photo. Only if it's still waiting to ship. */
+export async function markShipped(values: ShipValues): Promise<{ ok: true } | { ok: false; message: string }> {
+  const supabase = await createClient();
+  const { data: item, error: loadError } = await supabase
+    .from("items")
+    .select("status")
+    .eq("id", values.id)
+    .maybeSingle<Pick<ItemRow, "status">>();
+  if (loadError) throw new Error(`Couldn't load the item: ${loadError.message}`);
+  if (!item) return { ok: false, message: "Couldn't find this item. It may have been removed." };
+
+  const result = shippedPatch(item, values);
+  if (!result.ok) return result;
+  const { data: updated, error } = await supabase
+    .from("items")
+    .update({
+      status: result.patch.status,
+      ship_proof_path: result.patch.shipProofPath,
+      shipped_date: result.patch.shippedDate,
+    })
+    .eq("id", values.id)
+    .eq("status", "SOLD")
+    .select("id");
+  if (error) throw new Error(`Couldn't mark it shipped: ${error.message}`);
+  if (!updated?.length) return { ok: false, message: "This one's already marked shipped." };
+  return { ok: true };
 }

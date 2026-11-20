@@ -16,9 +16,10 @@ const pillClass = `${chipClass} relative z-10 disabled:opacity-55`;
 export function QuickStepButton({ id, action }: { id: string; action: NextAction }) {
   const [state, formAction, pending] = useActionState<QuickStepState, FormData>(quickStepAction, {});
 
-  if (action.kind === "edit" || action.kind === "sell") {
+  if (action.kind !== "tap") {
+    const href = action.kind === "sell" ? `/items/${id}/sold` : action.kind === "pack" ? "/pack" : `/items/${id}`;
     return (
-      <Link href={action.kind === "sell" ? `/items/${id}/sold` : `/items/${id}`} className={pillClass}>
+      <Link href={href} className={pillClass}>
         {action.label}
       </Link>
     );

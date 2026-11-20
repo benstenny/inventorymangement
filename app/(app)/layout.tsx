@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { BottomNav } from "@/components/bottom-nav";
+import { PackBadge } from "@/components/pack/pack-badge";
 
 /**
  * Shell for every logged-in page. proxy.ts keeps logged-out visitors out.
@@ -11,7 +13,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex w-full flex-1 flex-col px-gutter pb-[calc(var(--spacing-bar)+env(safe-area-inset-bottom)+--spacing(8))] lg:px-10 lg:pb-12">
         {children}
       </main>
-      <BottomNav />
+      <BottomNav
+        packBadge={
+          <Suspense fallback={null}>
+            <PackBadge />
+          </Suspense>
+        }
+      />
     </div>
   );
 }

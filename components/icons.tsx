@@ -34,6 +34,18 @@ export function HangerIcon(props: IconProps) {
   );
 }
 
+/** A taped-up package: Pack today. */
+export function BoxIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20.5 7.7 12 3.2 3.5 7.7v8.6l8.5 4.5 8.5-4.5V7.7Z" />
+      <path d="m3.5 7.7 8.5 4.6 8.5-4.6" />
+      <path d="M12 12.3v8.5" />
+      <path d="m7.8 5.4 8.4 4.6" />
+    </Svg>
+  );
+}
+
 export function PlusIcon(props: IconProps) {
   return (
     <Svg {...props}>

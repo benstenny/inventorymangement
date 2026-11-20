@@ -44,8 +44,12 @@ describe("nextAction", () => {
     expect(nextAction({ status: "LISTED", listPrice: 2500, prep })?.label).toBe("Mark washed");
   });
 
-  it("leaves sold and shipped items alone", () => {
-    for (const status of ["SOLD", "SHIPPED", "RETURNED"] as const) {
+  it("sends sold items to Pack today", () => {
+    expect(nextAction({ status: "SOLD", listPrice: 2500, prep: nothingDone })).toEqual({ kind: "pack", label: "Pack it" });
+  });
+
+  it("leaves shipped items alone", () => {
+    for (const status of ["SHIPPED", "RETURNED"] as const) {
       expect(nextAction({ status, listPrice: 2500, prep: nothingDone })).toBeNull();
     }
   });

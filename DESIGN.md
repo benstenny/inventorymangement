@@ -94,7 +94,8 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
 
 - **PageHeader** (`components/page-header.tsx`): 44px nav row (back button "‹ Inventory",
   trailing control such as the SKU), then the bubble large title. Every screen starts with one.
-- **Tab bar / sidebar** (`components/bottom-nav.tsx`): Inventory, Add, Money. Add is a pink pill
+- **Tab bar / sidebar** (`components/bottom-nav.tsx`): Inventory, Add, Pack, Money. Pack shows an orange
+  count badge of sold items waiting to ship (`components/pack/pack-badge.tsx`, server-rendered). Add is a pink pill
   and the strongest item. Active tab takes its own ink.
 - **Primary button**: glossy hot-pink pill, white rim, white label. One per screen.
 - **Grouped section** (`groupClass`): pale-pink rounded card with a white rim, like iOS Settings.
@@ -130,6 +131,12 @@ Shapes follow the Figma kit's Button, Text Field, Segmented Control, Toggle and 
   "Take it down from …" note when it's listed elsewhere. Pinned "Mark as sold" button. After saving,
   a "Sold for $x" card with the profit, what happens next, and the take-down note again.
   Reached from the row's "Mark as sold" pill (listed, prepped items) or the item page.
+- **Pack today** (`/pack`, `components/pack/pack-card.tsx`): sold items, oldest sale first. Each card:
+  photo, title, SKU · bin (purple), platform and price, "Ship by Thu, Nov 19" with urgency in her
+  words (muted "3 days left", orange "Ship by tomorrow", red "Ship today" / "2 days late", worked out
+  from her local date), the buyer's note, then "Take proof photo" (opens the camera) and
+  "Mark shipped", which stays disabled until the proof photo has uploaded. Only the most urgent card
+  gets the primary button. Sold rows in the inventory list show a "Pack it" pill.
 - **Text box** (`textareaClass`): the input look with card corners; never pill ends on multi-line fields.
 - **Holo sticker** (`holo` class): small tilted label, only for Sold or Shipped.
 - **Empty state**: hanger drawing, one sentence, one hint, the action that fixes it.
