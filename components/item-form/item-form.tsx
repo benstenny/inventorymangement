@@ -274,7 +274,7 @@ function ItemFields({
             />
           ))}
         </div>
-        <p className="mt-2 text-[13px] text-muted">
+        <p className="mt-2 text-[13px] text-pretty text-muted">
           Front, back, then styled on the mannequin.{creating && " Add them now or later."}
         </p>
       </section>
