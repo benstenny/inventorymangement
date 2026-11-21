@@ -156,7 +156,7 @@ export function ItemForm({ mode, defaults, lastPlatforms, ...rest }: Props) {
       : defaults;
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+    <form ref={formRef} onSubmit={handleSubmit} noValidate data-push-screen className="flex flex-col gap-5">
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
 
       <SaveMessage mode={mode} state={state} />
@@ -175,7 +175,7 @@ export function ItemForm({ mode, defaults, lastPlatforms, ...rest }: Props) {
       <div className="h-16" aria-hidden />
 
       {/* Pinned save: just above the tab bar on a phone, along the bottom edge on a laptop. */}
-      <div className="fixed inset-x-0 bottom-[calc(var(--spacing-bar)+env(safe-area-inset-bottom))] z-10 bg-gradient-to-t from-bg from-60% to-transparent pt-4 lg:bottom-0 lg:left-sidebar">
+      <div className="fixed inset-x-0 bottom-(--tab-offset) pb-(--save-pad) z-10 bg-gradient-to-t from-bg from-60% to-transparent pt-4 lg:bottom-0 lg:left-sidebar">
         <div className="mx-auto max-w-page px-gutter pb-3 lg:max-w-wide lg:px-10 lg:pb-6">
           <button type="submit" disabled={pending || uploading} className={`${primaryButtonClass} lg:ml-auto lg:w-60`}>
             {uploading ? "Uploading photo…" : pending ? "Saving…" : "Save item"}

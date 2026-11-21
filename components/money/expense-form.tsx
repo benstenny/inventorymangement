@@ -45,7 +45,7 @@ export function ExpenseForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+    <form ref={formRef} onSubmit={handleSubmit} noValidate data-push-screen className="flex flex-col gap-5">
       {state.formError && (
         <p role="alert" className="rounded-card bg-surface p-4 text-[15px] font-medium text-danger ring-1 ring-danger">
           {state.formError}
@@ -75,7 +75,7 @@ export function ExpenseForm() {
       </Field>
 
       <div className="h-16" aria-hidden />
-      <div className="fixed inset-x-0 bottom-[calc(var(--spacing-bar)+env(safe-area-inset-bottom))] z-10 bg-gradient-to-t from-bg from-60% to-transparent pt-4 lg:bottom-0 lg:left-sidebar">
+      <div className="fixed inset-x-0 bottom-(--tab-offset) pb-(--save-pad) z-10 bg-gradient-to-t from-bg from-60% to-transparent pt-4 lg:bottom-0 lg:left-sidebar">
         <div className="mx-auto max-w-page px-gutter pb-3 lg:px-10 lg:pb-6">
           <button type="submit" disabled={pending} className={`${primaryButtonClass} lg:ml-auto lg:w-60`}>
             {pending ? "Saving…" : "Add expense"}

@@ -218,6 +218,25 @@ html::before {
   background-position: 88% 4%, 1.5% 27%, 98.5% 48%, 1.5% 71%, 98.5% 90%, center, center;
 }
 
+/*
+ * Pinned save bars sit just above the phone tab bar. Form screens with a pinned save (add, edit,
+ * mark as sold, add expense) mark themselves with data-push-screen: like an iOS push screen,
+ * the phone tab bar steps aside, the save bar drops to the bottom edge clear of the home
+ * indicator, and the header's back link returns. Pure CSS, so there's no flash on load.
+ * The laptop sidebar is unaffected (save bars use lg:bottom-0 there).
+ */
+:root {
+  --tab-offset: calc(var(--spacing-bar) + env(safe-area-inset-bottom));
+  --save-pad: 0px;
+}
+body:has([data-push-screen]) {
+  --tab-offset: 0px;
+  --save-pad: env(safe-area-inset-bottom);
+}
+body:has([data-push-screen]) .tab-bar {
+  display: none;
+}
+
 /* Browser surfaces carry the world too. */
 ::selection {
   background: color-mix(in srgb, var(--ink-violet-glow) 35%, transparent);

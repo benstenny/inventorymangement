@@ -165,7 +165,7 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
       )}
 
       <div className="h-12" aria-hidden />
-      <div className="fixed inset-x-0 bottom-[calc(var(--spacing-bar)+env(safe-area-inset-bottom))] z-10 bg-gradient-to-t from-bg from-60% to-transparent pt-4 lg:bottom-0 lg:left-sidebar">
+      <div className="fixed inset-x-0 bottom-(--tab-offset) pb-(--save-pad) z-10 bg-gradient-to-t from-bg from-60% to-transparent pt-4 lg:bottom-0 lg:left-sidebar">
         <div className="mx-auto max-w-page px-gutter pb-3 lg:px-10 lg:pb-6">
           <button type="submit" disabled={pending} className={`${primaryButtonClass} lg:ml-auto lg:w-60`}>
             {pending ? "Saving…" : "Save settings"}

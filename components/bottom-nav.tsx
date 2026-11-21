@@ -34,7 +34,7 @@ export function BottomNav({ packBadge }: { packBadge?: ReactNode }) {
     <>
       <nav
         aria-label="Main"
-        className="glass fixed inset-x-0 bottom-0 z-20 border-t-[1.5px] border-edge bg-bar-glass pb-[env(safe-area-inset-bottom)] shadow-card lg:hidden"
+        className="tab-bar glass fixed inset-x-0 bottom-0 z-20 border-t-[1.5px] border-edge bg-bar-glass pb-[env(safe-area-inset-bottom)] shadow-card lg:hidden"
       >
         <Suspense fallback={<TabBar pathname={null} packBadge={packBadge} />}>
           <CurrentTabBar packBadge={packBadge} />

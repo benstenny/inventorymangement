@@ -114,6 +114,9 @@ Shapes follow the mockups: glass pills, indigo selected chips, gel primary butto
   iPhone maximum), frosted glass. Add is the glossy lavender orb in the middle, rising above the bar.
   The current tab turns soft pink. Pack shows an orange count badge of sold items waiting to ship
   (`components/pack/pack-badge.tsx`, server-rendered). On a laptop: a glass sidebar with the chrome wordmark.
+  **Push screens:** forms with a pinned save (add, edit, mark as sold, add expense) carry `data-push-screen`;
+  on a phone the tab bar steps aside (pure CSS, `body:has(...)`), the save bar drops to the bottom edge
+  clear of the home indicator (`bottom-(--tab-offset) pb-(--save-pad)`), and the header's back link returns.
 - **Primary button**: glossy pink -> lavender gel pill, white rim, white label. One per screen.
 - **Grouped section** (`groupClass`): frosted glass card with a white rim, like iOS Settings.
   Collapsible ones use `<details>` with a chevron that turns.
