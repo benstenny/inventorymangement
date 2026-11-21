@@ -90,6 +90,7 @@ already have items, unless you run `npm run seed -- --force`. You can archive or
    | `NEXT_PUBLIC_SUPABASE_URL` | same as in `.env.local` |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | same as in `.env.local` |
    | `CRON_SECRET` | any long random string (e.g. from a password generator) |
+   | `GEMINI_API_KEY` | same as in `.env.local` (for "Help me price this" and the AI summary) |
 
    You don't need `SUPABASE_SECRET_KEY` on Vercel. The app itself never uses it.
 4. Click **Deploy**.
