@@ -57,7 +57,8 @@ copy-paste listing text. Depop, Instagram and flea market are labels on an item,
 - Sale fields, empty until sold: soldPlatform (one of the three), soldPrice, soldDate,
   platformFees, shippingCost (all cents), paymentMethod (VENMO | ZELLE | CASH | DEPOP), buyerNotes
 - Shipping: shippedDate, shipProofPath (photo taken before sealing the package)
-- archivedAt (soft delete; never hard-delete items with sale history)
+- archivedAt (soft delete). "Delete forever" on the item page is the owner-approved hard delete:
+  removes the row (sale and profit included) and its photos; needs migration 0005
 
 `expenses` table: spentOn, kind (SUPPLIES | UPKEEP | OTHER), amount (cents), note.
 What she paid for items is not an expense; it lives on the item.

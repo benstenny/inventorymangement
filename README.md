@@ -44,7 +44,8 @@ saying it isn't connected yet. That's expected. Do step 2 next.
    You should see "Success". Then do the same with
    [`supabase/migrations/0002_business_plan.sql`](supabase/migrations/0002_business_plan.sql), then
    [`supabase/migrations/0003_instagram.sql`](supabase/migrations/0003_instagram.sql), then
-   [`supabase/migrations/0004_ai_usage.sql`](supabase/migrations/0004_ai_usage.sql) (the daily cap for price help).
+   [`supabase/migrations/0004_ai_usage.sql`](supabase/migrations/0004_ai_usage.sql) (the daily cap for price help), then
+   [`supabase/migrations/0005_allow_full_delete.sql`](supabase/migrations/0005_allow_full_delete.sql) (lets "Delete forever" remove sold items).
    Together they create the items, categories, expenses and settings tables, the private photo
    bucket, and the security rules. Run each file once, in order.
    **Already set up before?** Just run the files you haven't run yet.

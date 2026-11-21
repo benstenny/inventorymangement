@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
 import { ArchiveButton } from "@/components/item-form/archive-button";
+import { DeleteForeverButton } from "@/components/item-form/delete-forever-button";
 import { FormSkeleton } from "@/components/item-form/form-skeleton";
 import { ItemForm } from "@/components/item-form/item-form";
 import Link from "next/link";
@@ -105,6 +106,7 @@ async function EditItem({ params }: { params: Promise<{ id: string }> }) {
       />
 
       {!item.archived_at && <ArchiveButton id={item.id} />}
+      <DeleteForeverButton id={item.id} title={item.title} />
     </div>
   );
 }

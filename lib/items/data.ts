@@ -517,3 +517,40 @@ export async function markShipped(values: ShipValues): Promise<{ ok: true } | { 
   if (!updated?.length) return { ok: false, message: "This one's already marked shipped." };
   return { ok: true };
 }
+
+/**
+ * Delete forever: removes the item row (and with it its sale and profit record) and every photo
+ * of it, including the shipping proof. Can't be undone. Archive is the gentle option.
+ */
+export async function deleteItemForever(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: item, error: loadError } = await supabase
+    .from("items")
+    .select("photo_front_path, photo_back_path, photo_styled_path, ship_proof_path")
+    .eq("id", id)
+    .maybeSingle<{
+      photo_front_path: string | null;
+      photo_back_path: string | null;
+      photo_styled_path: string | null;
+      ship_proof_path: string | null;
+    }>();
+  if (loadError) throw new Error(`Couldn't load the item: ${loadError.message}`);
+  if (!item) return;
+
+  const { error } = await supabase.from("items").delete().eq("id", id);
+  if (error) {
+    if (error.message.includes("Archive it instead")) {
+      throw new Error("Run migration 0005_allow_full_delete.sql in Supabase first (see the README).");
+    }
+    throw new Error(`Couldn't delete the item: ${error.message}`);
+  }
+
+  const paths = [item.photo_front_path, item.photo_back_path, item.photo_styled_path, item.ship_proof_path].filter(
+    (p): p is string => !!p,
+  );
+  if (paths.length) {
+    // The item is already gone; a leftover photo is harmless, so don't fail the delete over it.
+    const { error: photoError } = await supabase.storage.from(PHOTO_BUCKET).remove(paths);
+    if (photoError) console.error(`Item deleted, but some photos weren't: ${photoError.message}`);
+  }
+}

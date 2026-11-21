@@ -3,7 +3,16 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { applyQuickStep, archiveItem, createItem, getItemCost, markShipped, markSold, updateItem } from "@/lib/items/data";
+import {
+  applyQuickStep,
+  archiveItem,
+  createItem,
+  deleteItemForever,
+  getItemCost,
+  markShipped,
+  markSold,
+  updateItem,
+} from "@/lib/items/data";
 import { shipFormSchema } from "@/lib/items/shipping";
 import { SALE_FORM_FIELDS, parseSaleForm, saleProfit, type SaleFieldErrors } from "@/lib/items/sale";
 import { QUICK_STEPS } from "@/lib/items/status";
@@ -132,4 +141,19 @@ export async function markShippedAction(_prev: MarkShippedState, formData: FormD
   }
   refresh();
   return { shipped: true };
+}
+
+export type DeleteForeverState = { error?: string };
+
+/** "Delete forever": the item, its sale and profit record, and its photos. Can't be undone. */
+export async function deleteItemForeverAction(_prev: DeleteForeverState, formData: FormData): Promise<DeleteForeverState> {
+  const id = idSchema.safeParse(formData.get("id"));
+  if (!id.success) return { error: "Something went wrong. Reload and try again." };
+  try {
+    await deleteItemForever(id.data);
+  } catch (err) {
+    console.error(err);
+    return { error: err instanceof Error && err.message.startsWith("Run migration") ? err.message : "Couldn't delete. Check your internet connection and try again." };
+  }
+  redirect("/");
 }
