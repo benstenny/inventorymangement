@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
+import { Logo } from "@/components/art/art";
 import { BoxIcon, GearIcon, HangerIcon, MoneyIcon, PlusIcon } from "@/components/icons";
 import { LogOutButton } from "@/components/log-out-button";
 
@@ -45,7 +46,10 @@ export function BottomNav({ packBadge }: { packBadge?: ReactNode }) {
         aria-label="Main"
         className="glass fixed inset-y-0 left-0 z-20 hidden w-sidebar flex-col border-r-[1.5px] border-edge bg-surface px-4 pt-8 pb-6 shadow-card lg:flex"
       >
-        <p className="wordmark mb-8 px-2 text-[30px]">reydiantfinds</p>
+        <div className="mb-8 flex items-center gap-2.5 px-1">
+          <Logo size={40} />
+          <p className="wordmark text-[26px]">reydiantfinds</p>
+        </div>
         <Suspense fallback={<SideLinks pathname={null} packBadge={packBadge} />}>
           <CurrentSideLinks packBadge={packBadge} />
         </Suspense>

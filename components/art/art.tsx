@@ -74,19 +74,23 @@ export function ChromeSparkle({ className = "", size = 24 }: { className?: strin
   );
 }
 
-/** The login's hero: a CD with chrome stars and sparkles around the wordmark. */
+/** Her logo: the glossy hanger tile (public/logo.webp, baked by scripts/icons.mjs). */
+export function Logo({ size, className = "" }: { size: number; className?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/logo.webp" width={size} height={size} alt="" className={`logo-tile ${className}`} />
+  );
+}
+
+/** The login's hero: the logo with chrome sparkles around it. */
 export function LoginArt() {
   return (
-    <div aria-hidden className="relative mx-auto mb-3 h-44 w-[290px]">
-      {/* The CD's own transform tilts it, so a wrapper does the centring. */}
-      <div className="absolute top-3 left-1/2 w-36 -translate-x-1/2">
-        <IridescentCD className="w-full" />
-      </div>
-      <ChromeStar size={70} className="absolute top-0 left-3 -rotate-12" />
-      <ChromeStar size={42} className="absolute right-5 bottom-1 rotate-12" />
-      <ChromeSparkle size={22} className="absolute top-5 right-9" />
-      <ChromeSparkle size={14} className="absolute bottom-7 left-12" />
-      <ChromeSparkle size={11} className="absolute top-0 right-24" />
+    <div aria-hidden className="relative mx-auto mb-4 h-40 w-[290px]">
+      <Logo size={144} className="absolute top-1 left-1/2 -translate-x-1/2" />
+      <ChromeStar size={44} className="absolute top-2 left-5 -rotate-12" />
+      <ChromeSparkle size={22} className="absolute top-6 right-8" />
+      <ChromeSparkle size={14} className="absolute bottom-4 left-14" />
+      <ChromeSparkle size={12} className="absolute right-14 bottom-1" />
     </div>
   );
 }

@@ -100,7 +100,11 @@ this", red = a loss or an error.
 
 ### Motion
 - `ease-out-expo`, 150-200ms. Buttons and tiles scale down slightly while pressed.
-- The gel tick draws on once (420ms) when a step becomes done. That's the one authored moment.
+- The gel tick draws on once (420ms) when a step becomes done. Besides the start-up screen, that's the one authored moment.
+- Start-up screen (`components/splash.tsx`): once per app launch the logo pops in with a gloss sweep, then fades. About 1 second, never blocks taps.
+
+### Logo
+- Her glossy hanger tile, source `assets/app-logo.png`. `node scripts/icons.mjs` bakes the home-screen icons, the tab icon and `public/logo.webp` (used by `<Logo>` on the login, the sidebar and the start-up screen). Replace the source and rerun to change it.
 - Reduce Motion turns all of it off.
 
 ## Components

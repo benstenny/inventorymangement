@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
+import { Splash } from "@/components/splash";
 import { BACKDROP_ID, backgroundBootScript } from "@/lib/backgrounds";
 import "./globals.css";
 
@@ -11,10 +12,8 @@ export const metadata: Metadata = {
   description: "Track thrifted finds from the rack to the buyer.",
   applicationName: "reydiantfinds",
   appleWebApp: { capable: true, title: "reydiantfinds", statusBarStyle: "default" },
-  icons: {
-    icon: { url: "/icon", type: "image/png", sizes: "32x32" },
-    apple: "/icons/apple-touch-icon.png",
-  },
+  // The tab icon is app/icon.png; all icons are baked from her logo by scripts/icons.mjs.
+  icons: { apple: "/icons/apple-touch-icon.png" },
 };
 
 // Mirrors the --bg token in globals.css (meta tags can't read CSS variables).
@@ -35,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* The saved background picture; the script fills it in before first paint (lib/backgrounds.ts). */}
         <div id={BACKDROP_ID} aria-hidden className="app-backdrop" suppressHydrationWarning />
         <script dangerouslySetInnerHTML={{ __html: backgroundBootScript }} />
+        <Splash />
         {children}
       </body>
     </html>
