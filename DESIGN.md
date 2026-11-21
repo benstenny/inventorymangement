@@ -23,9 +23,12 @@ sections, switches, sheets. The world shows in:
 4. **Glints and holo:** faint four-point glitter glints on the page; the holographic finish only means
    **sold**. Gel-pen ticks ink themselves on for done prep steps.
 
-The mockups' 3D renders (chrome stars, iridescent CD, ribbon, butterfly, disco ball) are image art,
-not CSS. When the owner supplies transparent PNGs (600px+), they go in `public/art/` and are placed
-on the login and in empty states only, never behind lists or forms.
+3D-look art: the iridescent CD, puffy chrome stars and chrome sparkles are coded (CSS/SVG, no image
+files) in `components/art/art.tsx`: `LoginArt` (CD with stars and sparkles above the centred wordmark)
+and `EmptyArt` (a chrome star cluster in every empty state). The rest of the mockups' renders
+(ribbon, butterfly, disco ball, puffy hearts) are image art: when the owner supplies transparent PNGs
+(1024px+), they go in `public/art/` as small WebP. All art is decorative (aria-hidden) and lives only
+on the login and in empty states, never behind lists or forms.
 
 ## Rules
 - Never hardcode colors, sizes or spacing. Use the tokens below through their Tailwind classes.
@@ -167,4 +170,4 @@ Shapes follow the mockups: glass pills, indigo selected chips, gel primary butto
   unit beside them ("30 days"). Log out at the bottom.
 - **Text box** (`textareaClass`): the input look with card corners; never pill ends on multi-line fields.
 - **Holo sticker** (`holo` class): small tilted label, only for Sold or Shipped.
-- **Empty state**: hanger drawing, one sentence, one hint, the action that fixes it.
+- **Empty state**: a chrome star cluster (`EmptyArt`), one sentence, one hint, the action that fixes it.

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LoginArt } from "@/components/art/art";
 import { readPublicEnv } from "@/lib/env";
 import { LoginForm } from "./login-form";
 
@@ -10,8 +11,9 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center px-gutter pt-[calc(env(safe-area-inset-top)+24px)] pb-[calc(env(safe-area-inset-bottom)+24px)]">
-      <h1 className="wordmark text-[46px]">reydiantfinds</h1>
-      <p className="mt-2 mb-8 text-[17px] font-bold text-ink-violet">Log in to your shop</p>
+      <LoginArt />
+      <h1 className="wordmark text-center text-[46px]">reydiantfinds</h1>
+      <p className="mt-2 mb-8 text-center text-[17px] font-bold text-ink-violet">Log in to your shop</p>
 
       {!connected && (
         <p className="mb-6 rounded-card bg-surface-muted p-4 text-[15px] font-medium text-warning">

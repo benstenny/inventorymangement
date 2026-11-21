@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { HangerIcon, PlusIcon } from "@/components/icons";
+import { EmptyArt } from "@/components/art/art";
+import { PlusIcon } from "@/components/icons";
 import { primaryButtonClass } from "@/components/ui/styles";
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 export function EmptyState({ message, hint, action }: Props) {
   return (
     <div className="flex flex-col items-center px-6 pt-10 pb-6 text-center">
-      <HangerIcon size={56} className="mb-5 text-ink-lilac-glow" />
+      <EmptyArt />
       <p className="max-w-[28ch] text-lg font-semibold text-balance">{message}</p>
       {hint && <p className="mt-2 max-w-[34ch] text-muted text-balance">{hint}</p>}
       {action && (
