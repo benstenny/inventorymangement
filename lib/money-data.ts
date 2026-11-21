@@ -1,6 +1,8 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type { ExpenseKind, Platform } from "@/lib/items/options";
+import { PLATFORM_LABELS, type ExpenseKind, type Platform } from "@/lib/items/options";
+import type { SummaryFacts } from "@/lib/ai/summary-prompt";
+import { daysBetween, todayIso } from "@/lib/dates";
 import {
   buildMonthReport,
   centsForCsv,
@@ -172,4 +174,75 @@ export async function exportExpensesCsv(): Promise<string> {
     ["spent_on", "kind", "amount", "note"],
     (data ?? []).map((e) => [e.spent_on, e.kind, centsForCsv(e.amount), e.note]),
   );
+}
+
+/** Everything the AI monthly summary is allowed to talk about: her real numbers, nothing else. */
+export async function getSummaryFacts(month: Month): Promise<SummaryFacts> {
+  const supabase = await createClient();
+  const { from, to } = monthRange(month);
+  const [report, soldResult, listedResult, settingsResult] = await Promise.all([
+    getMonthReport(month),
+    supabase
+      .from("items")
+      .select("id, brand, source, listed_date, sold_date, categories ( name )")
+      .gte("sold_date", from)
+      .lt("sold_date", to)
+      .not("sold_price", "is", null)
+      .returns<
+        { id: string; brand: string | null; source: string | null; listed_date: string | null; sold_date: string; categories: { name: string } | null }[]
+      >(),
+    supabase
+      .from("items")
+      .select("title, listed_date")
+      .eq("status", "LISTED")
+      .is("archived_at", null)
+      .returns<{ title: string; listed_date: string | null }[]>(),
+    supabase.from("settings").select("stale_days").single<{ stale_days: number }>(),
+  ]);
+  for (const result of [soldResult, listedResult]) {
+    if (result.error) throw new Error(`Couldn't load the summary facts: ${result.error.message}`);
+  }
+
+  const extra = new Map((soldResult.data ?? []).map((r) => [r.id, r]));
+  const staleDays = settingsResult.data?.stale_days ?? 30;
+  const today = todayIso();
+  const listed = listedResult.data ?? [];
+  const expensesByKind: Record<string, number> = {};
+  for (const e of report.expenseRows) expensesByKind[e.kind] = (expensesByKind[e.kind] ?? 0) + e.amount;
+
+  return {
+    month,
+    sales: report.sales,
+    itemCosts: report.itemCosts,
+    fees: report.fees,
+    shipping: report.shipping,
+    expenses: report.expenses,
+    profit: report.profit,
+    sold: report.items.map((item) => {
+      const more = extra.get(item.id);
+      return {
+        title: item.title,
+        brand: more?.brand ?? null,
+        category: more?.categories?.name ?? null,
+        source: more?.source ?? null,
+        platform: item.soldPlatform ? PLATFORM_LABELS[item.soldPlatform] : null,
+        soldPrice: item.soldPrice,
+        cost: item.cost,
+        profit: item.profit,
+        daysListed: more?.listed_date ? daysBetween(more.listed_date, item.soldDate) : null,
+      };
+    }),
+    expensesByKind,
+    budgets: {
+      stock: { spent: report.budgets.stock.spent, budget: report.budgets.stock.budget },
+      upkeep: { spent: report.budgets.upkeep.spent, budget: report.budgets.upkeep.budget },
+    },
+    listedCount: listed.length,
+    stale: listed
+      .filter((l) => l.listed_date && daysBetween(l.listed_date, today) >= staleDays)
+      .map((l) => ({ title: l.title, days: daysBetween(l.listed_date as string, today) }))
+      .sort((a, b) => b.days - a.days)
+      .slice(0, 5),
+    staleDays,
+  };
 }

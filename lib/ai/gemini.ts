@@ -20,7 +20,18 @@ export class GeminiError extends Error {
   }
 }
 
-export async function askWithGoogleSearch(prompt: string, config: { apiKey: string; model: string }): Promise<GroundedAnswer> {
+type GeminiConfig = { apiKey: string; model: string };
+
+export function askWithGoogleSearch(prompt: string, config: GeminiConfig): Promise<GroundedAnswer> {
+  return interact({ model: config.model, input: prompt, tools: [{ type: "google_search" }] }, config);
+}
+
+/** A plain question, no web search: for writing from facts we already have (the monthly summary). */
+export async function askGemini(prompt: string, config: GeminiConfig): Promise<string> {
+  return (await interact({ model: config.model, input: prompt }, config)).text;
+}
+
+async function interact(body: Record<string, unknown>, config: GeminiConfig): Promise<GroundedAnswer> {
   const response = await fetch(ENDPOINT, {
     method: "POST",
     headers: {
@@ -28,7 +39,7 @@ export async function askWithGoogleSearch(prompt: string, config: { apiKey: stri
       "x-goog-api-key": config.apiKey,
       "Api-Revision": API_REVISION,
     },
-    body: JSON.stringify({ model: config.model, input: prompt, tools: [{ type: "google_search" }] }),
+    body: JSON.stringify(body),
     cache: "no-store",
     signal: AbortSignal.timeout(60_000),
   });

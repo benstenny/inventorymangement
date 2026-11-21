@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { ChevronRightIcon, PlusIcon } from "@/components/icons";
 import { ListSkeleton } from "@/components/inventory/list-skeleton";
+import { AiSummary } from "@/components/money/ai-summary";
 import { BudgetMeters, ExpenseList, MonthNav, ProfitCard, SoldList } from "@/components/money/report";
 import { PageHeader } from "@/components/page-header";
 import { groupClass, secondaryButtonClass } from "@/components/ui/styles";
@@ -57,6 +58,13 @@ async function Report({ searchParams }: { searchParams: PageProps<"/summary">["s
     <>
       <MonthNav month={month} current={current} />
       <ProfitCard report={report} />
+
+      <section aria-labelledby="summary-heading" className="mt-8">
+        <h2 id="summary-heading" className={sectionHeading}>
+          Summary
+        </h2>
+        <AiSummary key={month} month={month} />
+      </section>
 
       <section aria-labelledby="budgets-heading" className="mt-8">
         <h2 id="budgets-heading" className={sectionHeading}>

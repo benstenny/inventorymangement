@@ -158,6 +158,10 @@ Shapes follow the mockups: glass pills, indigo selected chips, gel primary butto
   from her local date), the buyer's note, then "Take proof photo" (opens the camera) and
   "Mark shipped", which stays disabled until the proof photo has uploaded. Only the most urgent card
   gets the primary button. Sold rows in the inventory list show a "Pack it" pill.
+- **AI summary** (`components/money/ai-summary.tsx`, Money tab under the profit card): on demand, "Write this
+  month's summary" asks Gemini (no web search) to turn her real numbers into 3-4 friendly sentences:
+  what made money, what's sitting, budgets, one tip. Shown as written with "Written by AI from your
+  numbers", never stored, shares the 30-a-day AI cap. The prompt (lib/ai/summary-prompt.ts) forbids inventing.
 - **Money** (`/summary`, `components/money/`): ‹ month › switcher; profit card (big violet figure, red
   if a loss, then Sales and each deduction spelled out); Budgets as a meter list (name, "$96 of $130",
   8px bar on a `bg-hairline` track, fill violet -> orange from 90% -> red when over, and "$34 left" /
