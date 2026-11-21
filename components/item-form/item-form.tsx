@@ -253,6 +253,9 @@ function ItemFields({
   const guides = measurementsFor(prefix);
   const hasError = (fields: Iterable<string>) => [...fields].some((f) => errors[f as keyof FieldErrors]);
   const suggestion = cost === null ? null : suggestPrices(cost, fees, pricing);
+  // Adding a find asks only what she knows at the rack. Washing, measuring and listing come
+  // later, from the list's next-step pills; status follows from those steps.
+  const creating = mode === "create";
 
   return (
     <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:items-start lg:gap-10">
@@ -271,7 +274,9 @@ function ItemFields({
             />
           ))}
         </div>
-        <p className="mt-2 text-[13px] text-muted">Front, back, then styled on the mannequin.</p>
+        <p className="mt-2 text-[13px] text-muted">
+          Front, back, then styled on the mannequin.{creating && " Add them now or later."}
+        </p>
       </section>
 
       <div className="flex min-w-0 flex-col gap-6">
@@ -294,6 +299,7 @@ function ItemFields({
         defaultValue={values.categoryId}
         error={errors.categoryId}
         onChange={setCategoryId}
+        compact
       />
 
       <div className="flex flex-col gap-1">
@@ -321,9 +327,9 @@ function ItemFields({
         {suggestion && <PriceHint lowest={suggestion.lowest} listAt={suggestion.listAt} />}
       </div>
 
-      <WashedToggle defaultChecked={values.washed} />
+      {!creating && <WashedToggle defaultChecked={values.washed} />}
 
-      {guides.length > 0 && (
+      {!creating && guides.length > 0 && (
         <details
           open={hasError(guides.map((g) => measurementField(g.key))) || undefined}
           className={`group ${groupClass}`}
@@ -364,7 +370,7 @@ function ItemFields({
       <details open={hasError(DETAIL_FIELDS) || undefined} className={`group ${groupClass}`}>
         <SectionSummary>
           More details
-          <span className="text-[15px] font-medium text-muted">Brand, flaws, price</span>
+          <span className="text-[15px] font-medium text-muted">{creating ? "Brand, size, flaws, price" : "Brand, flaws, price"}</span>
         </SectionSummary>
 
         <div className="flex flex-col gap-5 border-t border-hairline px-4 pt-4 pb-5">
@@ -428,7 +434,12 @@ function ItemFields({
             </Field>
           </div>
 
-          {lockedStatusLabel ? (
+          {creating && <WashedToggle defaultChecked={values.washed} inCard />}
+
+          {creating ? (
+            // New finds start as Sourced; "Mark washed" and "Mark listed" move them on.
+            <input type="hidden" name="status" value="SOURCED" />
+          ) : lockedStatusLabel ? (
             <div className="flex flex-col gap-1">
               {/* Placeholder so validation passes; the server keeps the real status. */}
               <input type="hidden" name="status" value="SOURCED" />
@@ -455,6 +466,7 @@ function ItemFields({
             />
           )}
 
+          {!creating && (
           <MultiChips
             name="listedOn"
             label="Listed on"
@@ -463,6 +475,7 @@ function ItemFields({
             error={errors.listedOn}
             hint="Tick every place it's up for sale. Leave blank if it isn't listed yet."
           />
+          )}
 
           <Field label="Price" htmlFor="listPrice" error={errors.listPrice} className="w-1/2">
             <MoneyInput id="listPrice" name="listPrice" cents={values.listPrice} invalid={!!errors.listPrice} />
@@ -506,11 +519,11 @@ function PriceHint({ lowest, listAt }: { lowest: number; listAt: number }) {
 }
 
 /** iOS-style switch row. Turning it on inks a gel tick beside the label. */
-function WashedToggle({ defaultChecked }: { defaultChecked?: boolean }) {
+function WashedToggle({ defaultChecked, inCard = false }: { defaultChecked?: boolean; inCard?: boolean }) {
   const [on, setOn] = useState(!!defaultChecked);
   const [touched, setTouched] = useState(false);
   return (
-    <label className={`${groupClass} flex min-h-[52px] cursor-pointer items-center gap-3 px-4`}>
+    <label className={`${inCard ? "" : `${groupClass} px-4`} flex min-h-[52px] cursor-pointer items-center gap-3`}>
       <span className="flex flex-1 items-center gap-2 text-[17px] font-semibold">
         Washed and steamed
         {on && <GelTick draw={touched} className="text-ink-aqua" size={20} />}

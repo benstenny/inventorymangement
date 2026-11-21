@@ -11,6 +11,8 @@ type Props = {
   defaultValue?: string | null;
   error?: string;
   onChange?: (value: string) => void;
+  /** Tighter side padding, so a longer set (like the 7 categories) fits in fewer rows. */
+  compact?: boolean;
 };
 
 const choiceChipClass = `${chipClass} ${chipSelectedPeer} peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus`;
@@ -19,7 +21,7 @@ const choiceChipClass = `${chipClass} ${chipSelectedPeer} peer-focus-visible:out
  * Single-choice chips. Native radio buttons underneath, so they work with
  * plain form submission and keyboard navigation (see DESIGN.md > Chip).
  */
-export function Chips({ name, label, options, defaultValue, error, onChange }: Props) {
+export function Chips({ name, label, options, defaultValue, error, onChange, compact = false }: Props) {
   const errorId = `${name}-error`;
   return (
     <fieldset className="flex flex-col gap-2">
@@ -36,7 +38,7 @@ export function Chips({ name, label, options, defaultValue, error, onChange }: P
               aria-describedby={error ? errorId : undefined}
               className="peer absolute inset-0 cursor-pointer opacity-0"
             />
-            <span className={choiceChipClass}>{option.label}</span>
+            <span className={compact ? choiceChipClass.replace("px-4", "px-3") : choiceChipClass}>{option.label}</span>
           </label>
         ))}
       </div>

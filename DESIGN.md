@@ -168,6 +168,11 @@ Shapes follow the mockups: glass pills, indigo selected chips, gel primary butto
   Shipping (ship within N days), Budgets (stock, upkeep, live total), Suggestions (where I shop,
   storage spots: removable chips plus an add field). Short numbers are compact fields with the
   unit beside them ("30 days"). Log out at the bottom.
+- **Add a find** (`/items/new`) asks only what she knows at the rack: photos ("now or later"), title,
+  category (compact chips, two rows), cost and storage spot, then one "More details" row (brand, size,
+  color, condition, flaws, notes, where and when, washed, price and "Help me price this"). No status,
+  "Listed on" or measurements on Add: new finds start as Sourced, and washing, measuring and listing
+  happen later from the list's next-step pills. **Edit** keeps every field.
 - **Text box** (`textareaClass`): the input look with card corners; never pill ends on multi-line fields.
 - **Holo sticker** (`holo` class): small tilted label, only for Sold or Shipped.
 - **Empty state**: a chrome star cluster (`EmptyArt`), one sentence, one hint, the action that fixes it.
