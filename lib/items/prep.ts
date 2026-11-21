@@ -37,3 +37,16 @@ export function nextPrepStep(item: PrepInput): PrepStep | null {
   const done = prepChecklist(item);
   return PREP_STEPS.find(({ step }) => !done[step])?.step ?? null;
 }
+
+const TODO_WORDS: Record<PrepStep, string> = {
+  washed: "wash",
+  measured: "measure",
+  photographed: "photos",
+  listed: "list",
+};
+
+/** What's left, in her words: "To do: measure, photos, list". Null when every step is done. */
+export function prepTodoText(done: Record<PrepStep, boolean>): string | null {
+  const left = PREP_STEPS.filter(({ step }) => !done[step]).map(({ step }) => TODO_WORDS[step]);
+  return left.length ? `To do: ${left.join(", ")}` : null;
+}

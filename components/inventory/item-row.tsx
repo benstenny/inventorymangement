@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CameraIcon, GelCircle, GelTick } from "@/components/icons";
+import { CameraIcon, GelTick } from "@/components/icons";
 import { formatCents } from "@/lib/money";
 import type { ListItem } from "@/lib/items/list";
 import { PLATFORM_LABELS, STATUS_LABELS } from "@/lib/items/options";
-import { PREP_STEPS } from "@/lib/items/prep";
+import { PREP_STEPS, prepTodoText } from "@/lib/items/prep";
 import { QuickStepButton } from "./quick-step-button";
 
 /**
@@ -119,20 +119,10 @@ function PrepTicks({
       </p>
     );
   }
+  const todo = prepTodoText(done);
   return (
-    <ul aria-label="Prep checklist" className="flex items-center gap-1 pb-1">
-      {PREP_STEPS.map(({ step, label }) => (
-        <li key={step} title={label} className={done[step] ? "text-ink-aqua" : "text-muted"}>
-          {done[step] ? (
-            <GelTick size={18} draw={!doneAtFirst[step]} />
-          ) : (
-            <GelCircle size={16} className="m-px opacity-70" />
-          )}
-          <span className="sr-only">
-            {label} {done[step] ? "(done)" : "(to do)"}
-          </span>
-        </li>
-      ))}
-    </ul>
+    <p className="pb-0.5 text-[13px] leading-snug font-semibold text-muted">
+      {todo ?? "Ready"}
+    </p>
   );
 }

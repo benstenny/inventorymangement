@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextPrepStep, prepChecklist, type PrepInput } from "./prep";
+import { nextPrepStep, prepChecklist, type PrepInput, prepTodoText } from "./prep";
 
 const fresh: PrepInput = {
   washed: false,
@@ -37,5 +37,16 @@ describe("prepChecklist", () => {
     const photographed = { ...measured, photos: allPhotos };
     expect(nextPrepStep(photographed)).toBe("listed");
     expect(nextPrepStep({ ...photographed, status: "LISTED" })).toBeNull();
+  });
+});
+
+describe("prepTodoText", () => {
+  const none = { washed: false, measured: false, photographed: false, listed: false };
+  it("lists what's left in order, in plain words", () => {
+    expect(prepTodoText(none)).toBe("To do: wash, measure, photos, list");
+    expect(prepTodoText({ ...none, washed: true, listed: true })).toBe("To do: measure, photos");
+  });
+  it("is null when everything is done", () => {
+    expect(prepTodoText({ washed: true, measured: true, photographed: true, listed: true })).toBeNull();
   });
 });

@@ -136,7 +136,7 @@ Shapes follow the mockups: glass pills, indigo selected chips, gel primary butto
   Other filters show one flat list.
 - **Item row** (`components/inventory/item-row.tsx`): 96px 4:5 photo (it sets the row height), title,
   SKU and bin in lilac, violet price
-  over "paid $x", four compact prep marks, and one pill for the next step ("Mark washed", "Mark listed"
+  over "paid $x", what is left in words ("To do: measure, photos, list"), and one pill for the next step ("Mark washed", "Mark listed"
   save on the spot; "Measure", "Add photos", "Add a price" open the item). The whole row opens the item.
   Listed 30+ days swaps the marks for a warning-coloured nudge to lower the price.
 - **Background picker** (`components/background-picker.tsx`, in Settings > Look): "Plain" plus the
