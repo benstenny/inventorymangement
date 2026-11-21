@@ -67,4 +67,11 @@ describe("price prompt", () => {
     expect(prompt).toContain("Never suggest under $10");
     expect(prompt).not.toContain("Size:");
   });
+
+  it("passes on her notes and measurements", () => {
+    const item = priceHelpSchema.parse({ title: "Tee", notes: "Single stitch, made in USA", measurements: "Pit to pit 20.5 in" });
+    const prompt = buildPricePrompt(item, { minPrice: 1000 });
+    expect(prompt).toContain("Notes: Single stitch, made in USA");
+    expect(prompt).toContain("Measurements (laid flat): Pit to pit 20.5 in");
+  });
 });

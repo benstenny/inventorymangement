@@ -34,6 +34,8 @@ export function PriceHelp({ categories }: { categories: Category[] }) {
       color: value("color"),
       condition: value("condition"),
       flaws: value("flaws"),
+      notes: value("description"),
+      measurements: measurementsText(form),
       cost: costText ? parseMoneyToCents(costText) : null,
     };
     setError(null);
@@ -124,4 +126,15 @@ function SearchSuggestions({ html }: { html: string }) {
       className="mt-3 w-full border-0"
     />
   );
+}
+
+/** The measurements she's filled in, with their labels: "Pit to pit 20.5 in, Length 27 in". */
+function measurementsText(form: HTMLFormElement): string {
+  return [...form.querySelectorAll<HTMLInputElement>('input[name^="m_"]')]
+    .filter((input) => input.value.trim())
+    .map((input) => {
+      const label = form.querySelector(`label[for="${input.id}"]`)?.textContent?.trim() || input.name.slice(2);
+      return `${label} ${input.value.trim()} in`;
+    })
+    .join(", ");
 }

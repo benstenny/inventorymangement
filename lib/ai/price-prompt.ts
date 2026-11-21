@@ -26,6 +26,10 @@ export const priceHelpSchema = z.object({
   color: text(40),
   condition: text(40),
   flaws: text(300),
+  /** Her notes: era, fabric, tags ("single stitch", "made in USA") often move vintage prices. */
+  notes: text(400),
+  /** Filled-in measurements, already labelled: "Pit to pit 20.5 in, Length 27 in". */
+  measurements: text(300),
   /** What she paid, in cents, when known. */
   cost: z.number().int().min(0).nullable().optional(),
 });
@@ -41,6 +45,8 @@ export function buildPricePrompt(item: PriceHelpInput, settings: { minPrice: num
     item.color && `Color: ${item.color}`,
     item.condition && `Condition: ${item.condition}`,
     item.flaws && `Flaws: ${item.flaws}`,
+    item.notes && `Notes: ${item.notes}`,
+    item.measurements && `Measurements (laid flat): ${item.measurements}`,
     item.cost != null && `She paid: ${formatCents(item.cost)}`,
   ]
     .filter(Boolean)
@@ -54,7 +60,7 @@ Search for comparable listings of this item or very close matches: sold listings
 
 Suggested price: $X to $Y
 Quick sale: $Z
-Why: two or three short sentences about what comparable items sold or are listed for, and anything about this one (brand, era, condition, flaws) that moves the price up or down.
+Why: two or three short sentences about what comparable items sold or are listed for, and anything about this one (brand, era, details in her notes, size and measurements, condition, flaws) that moves the price up or down.
 
 Rules: whole US dollars. Never suggest under ${formatCents(settings.minPrice, { whole: true })}, her lowest price. If you can't find good comparables, say so in "Why" and give a cautious range. No markdown, no bullet points, no headings.`;
 }
