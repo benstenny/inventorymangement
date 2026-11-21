@@ -251,7 +251,7 @@ function ListEditor({
       {items.length > 0 && (
         <ul className="flex flex-wrap gap-2">
           {items.map((item) => (
-            <li key={item} className="flex min-h-touch items-center gap-1 rounded-pill border-2 border-border bg-surface-raised pl-4 text-[15px] font-semibold text-ink-pink">
+            <li key={item} className="flex min-h-touch items-center gap-1 rounded-pill border-2 border-border bg-surface-raised pl-4 text-[15px] font-semibold text-ink-violet">
               {item}
               <button
                 type="button"

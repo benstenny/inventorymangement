@@ -83,7 +83,7 @@ export function InventoryList({ items, staleDays, initialFilter, initialQuery }:
       {summary && <p className="-mt-2 mb-4 text-[15px] font-semibold text-muted tabular">{summary}</p>}
 
       <search className="relative">
-        <SearchIcon size={20} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-pink" />
+        <SearchIcon size={20} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-violet" />
         <label htmlFor="inventory-search" className="sr-only">
           Search your items
         </label>

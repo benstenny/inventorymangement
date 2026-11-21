@@ -1,38 +1,37 @@
 /** Shared class names for the components in DESIGN.md. Tokens only, no raw values. */
 
 /**
- * Text field, from the Y2K kit: a white pill with a pink rim. What she types is plum, so
- * her words read apart from the pink labels.
- * Focus swaps the rim for the kit's white edge and a pink halo. Red rim on error.
+ * Text field: a bright glass pill with a crisp white rim and a soft lavender edge; what she
+ * types is deep indigo. Focus: lavender outline plus a soft lavender halo. Red outline on error.
  * Multi-line fields use `textareaClass` instead, so the corners don't balloon.
  */
 export const inputClass =
-  "min-h-touch w-full rounded-pill border-2 border-border bg-surface-raised px-4 text-base font-medium text-text placeholder:text-muted placeholder:font-normal transition-[box-shadow,border-color] duration-150 ease-out-expo focus:border-edge focus:shadow-glow focus:outline-none aria-invalid:border-danger";
+  "min-h-touch w-full rounded-pill border-[1.5px] border-border bg-surface-raised px-4 text-base font-semibold text-text placeholder:text-muted placeholder:font-normal shadow-pearl transition-[box-shadow,border-color] duration-150 ease-out-expo focus:border-accent focus:shadow-glow focus:outline-none aria-invalid:border-danger";
 
 /** Multi-line text box: same look as a field, card corners instead of pill ends. */
 export const textareaClass = `${inputClass.replace("rounded-pill", "rounded-card")} py-2.5`;
 
-/** The one primary action per screen: the kit's glossy candy pill. */
+/** The one primary action per screen: the glossy pink-to-lavender gel pill. */
 export const primaryButtonClass =
-  "flex min-h-[50px] w-full items-center justify-center rounded-pill border-2 border-edge bg-accent gloss px-6 text-[17px] font-semibold tracking-[0.01em] text-on-accent shadow-candy transition-transform duration-150 ease-out-expo active:scale-[0.97] active:shadow-pressed disabled:opacity-55 disabled:shadow-pressed";
+  "flex min-h-[52px] w-full items-center justify-center rounded-pill border-[1.5px] border-edge bg-candy gloss px-6 text-[17px] font-extrabold tracking-[0.01em] text-on-accent shadow-candy transition-transform duration-150 ease-out-expo active:scale-[0.97] active:shadow-pressed disabled:opacity-55 disabled:shadow-pressed";
 
-/** Outline candy: pale pink fill, hot-pink rim, pink label. */
+/** Glass pill with a lavender outline and violet label. */
 export const secondaryButtonClass =
-  "flex min-h-touch items-center justify-center rounded-pill border-2 border-ink-pink-glow bg-surface px-5 font-semibold text-ink-pink shadow-pearl transition-transform duration-150 ease-out-expo active:scale-[0.97] active:shadow-pressed disabled:opacity-55";
+  "flex min-h-touch items-center justify-center rounded-pill border-[1.5px] border-border bg-surface-raised px-5 font-bold text-ink-violet shadow-pearl transition-transform duration-150 ease-out-expo active:scale-[0.97] active:shadow-pressed disabled:opacity-55";
 
 /**
- * Chip and small pill (filters, choices, next-step buttons). White pill with a pink rim and
- * pink label; selected ones turn into glossy candy with the kit's white rim (add the state variant:
- * `peer-checked:` for radio/checkbox chips, `aria-pressed:` for toggle buttons).
+ * Chip and small pill (filters, choices, next-step buttons): a glass pill with a lavender outline
+ * and violet label; selected ones turn deep indigo with a white label and a gel shine (add the
+ * state variant: `peer-checked:` for radio/checkbox chips, `aria-pressed:` for toggle buttons).
  */
 export const chipClass =
-  "flex min-h-touch shrink-0 items-center gap-1.5 rounded-pill border-2 border-border bg-surface-raised px-4 text-[15px] font-semibold whitespace-nowrap text-ink-pink shadow-pearl transition-[transform,background-color] duration-150 ease-out-expo active:scale-95";
+  "flex min-h-touch shrink-0 items-center gap-1.5 rounded-pill border-[1.5px] border-border bg-surface-raised px-4 text-[15px] font-bold whitespace-nowrap text-ink-violet shadow-pearl transition-[transform,background-color] duration-150 ease-out-expo active:scale-95";
 export const chipSelectedPeer =
-  "peer-checked:border-edge peer-checked:bg-accent peer-checked:gloss peer-checked:text-on-accent peer-checked:shadow-gloss";
+  "peer-checked:border-selected peer-checked:bg-selected peer-checked:gloss peer-checked:text-on-selected peer-checked:shadow-gloss";
 export const chipSelectedPressed =
-  "aria-pressed:border-edge aria-pressed:bg-accent aria-pressed:gloss aria-pressed:text-on-accent aria-pressed:shadow-gloss";
+  "aria-pressed:border-selected aria-pressed:bg-selected aria-pressed:gloss aria-pressed:text-on-selected aria-pressed:shadow-gloss";
 
-export const labelClass = "text-[15px] font-semibold text-ink-pink";
+export const labelClass = "text-[15px] font-bold text-ink-violet";
 
-/** Grouped section: a warm near-white card with a pink rim on the bubblegum page. */
-export const groupClass = "rounded-card bg-surface shadow-card ring-1 ring-border";
+/** Grouped section: frosted pearl glass with a crisp white rim and soft lavender lighting. */
+export const groupClass = "glass rounded-card bg-surface shadow-card ring-[1.5px] ring-edge";

@@ -44,7 +44,7 @@ export function ItemRow({ item }: { item: ListItem }) {
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-2">
           {sold ? (
-            <p className={`pb-0.5 text-[13px] ${item.status === "SOLD" ? "font-semibold text-ink-pink" : "text-muted"}`}>
+            <p className={`pb-0.5 text-[13px] ${item.status === "SOLD" ? "font-semibold text-ink-violet" : "text-muted"}`}>
               {item.status === "SOLD" ? "Sold. Waiting to ship." : "Shipped."}
             </p>
           ) : item.stale ? (
@@ -93,7 +93,7 @@ function Price({ item, sold }: { item: ListItem; sold: boolean }) {
   const cents = sold ? (item.soldPrice ?? item.listPrice) : item.listPrice;
   if (cents === null) return <span className="shrink-0 pt-0.5 text-[13px] text-muted">No price</span>;
   return (
-    <span className="tabular shrink-0 text-right text-[17px] leading-snug font-extrabold text-ink-pink">
+    <span className="tabular shrink-0 text-right text-[17px] leading-snug font-extrabold text-ink-violet">
       {sold && <span className="sr-only">Sold for </span>}
       {formatCents(cents, { whole: true })}
     </span>

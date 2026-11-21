@@ -91,7 +91,7 @@ function Tile({
     <label className="flex cursor-pointer flex-col items-center gap-1.5">
       <input type="radio" name="background" checked={checked} onChange={onSelect} className="peer sr-only" />
       <span className={tileClass} style={style} />
-      <span className={`text-center text-[13px] leading-tight ${checked ? "font-semibold text-ink-pink" : "text-muted"}`}>
+      <span className={`text-center text-[13px] leading-tight ${checked ? "font-semibold text-ink-violet" : "text-muted"}`}>
         {label}
       </span>
     </label>

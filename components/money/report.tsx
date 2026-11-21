@@ -44,7 +44,7 @@ export function ProfitCard({ report }: { report: MonthReport }) {
         <h3 id="profit-heading" className="text-[17px] font-semibold">
           Profit
         </h3>
-        <p className={`tabular text-[34px] leading-none font-extrabold ${report.profit < 0 ? "text-danger" : "text-ink-pink"}`}>
+        <p className={`tabular text-[34px] leading-none font-extrabold ${report.profit < 0 ? "text-danger" : "text-ink-violet"}`}>
           {formatCents(report.profit)}
         </p>
       </div>
@@ -141,7 +141,7 @@ export function SoldList({ items }: { items: MonthReport["items"] }) {
             </p>
           </div>
           <div className="tabular shrink-0 text-right">
-            <p className={`text-[17px] font-extrabold ${item.profit < 0 ? "text-danger" : "text-ink-pink"}`}>
+            <p className={`text-[17px] font-extrabold ${item.profit < 0 ? "text-danger" : "text-ink-violet"}`}>
               {formatCents(item.profit)}
             </p>
             <p className="text-[13px] text-muted">profit</p>

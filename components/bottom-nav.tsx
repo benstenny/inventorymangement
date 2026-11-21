@@ -7,17 +7,17 @@ import { BoxIcon, GearIcon, HangerIcon, MoneyIcon, PlusIcon } from "@/components
 import { LogOutButton } from "@/components/log-out-button";
 
 /**
- * Each tab owns one ink: Inventory purple, Add pink, Pack orange (it's a to-do), Money mint,
- * Settings plum.
+ * Frosted pearl glass. The current tab lights up soft pink; Add is a glossy lavender orb that
+ * rises above the bar.
  * Pack shows a count of sold items waiting to ship (`packBadge`, rendered on the server).
  * Phone: an iOS tab bar in the thumb zone. Laptop (lg): a sidebar with the same links.
  */
 const links = [
-  { href: "/", label: "Inventory", Icon: HangerIcon, ink: "text-ink-lilac" },
-  { href: "/pack", label: "Pack", Icon: BoxIcon, ink: "text-warning" },
-  { href: "/items/new", label: "Add", Icon: PlusIcon, ink: "text-ink-pink", primary: true },
-  { href: "/summary", label: "Money", Icon: MoneyIcon, ink: "text-ink-aqua" },
-  { href: "/settings", label: "Settings", Icon: GearIcon, ink: "text-text" },
+  { href: "/", label: "Inventory", Icon: HangerIcon, ink: "text-ink-rose" },
+  { href: "/pack", label: "Pack", Icon: BoxIcon, ink: "text-ink-rose" },
+  { href: "/items/new", label: "Add", Icon: PlusIcon, ink: "text-ink-rose", primary: true },
+  { href: "/summary", label: "Money", Icon: MoneyIcon, ink: "text-ink-rose" },
+  { href: "/settings", label: "Settings", Icon: GearIcon, ink: "text-ink-rose" },
 ] as const;
 
 type NavLink = (typeof links)[number];
@@ -34,7 +34,7 @@ export function BottomNav({ packBadge }: { packBadge?: ReactNode }) {
     <>
       <nav
         aria-label="Main"
-        className="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-bar-glass pb-[env(safe-area-inset-bottom)] backdrop-blur-xl backdrop-saturate-150 lg:hidden"
+        className="glass fixed inset-x-0 bottom-0 z-20 border-t-[1.5px] border-edge bg-bar-glass pb-[env(safe-area-inset-bottom)] shadow-card lg:hidden"
       >
         <Suspense fallback={<TabBar pathname={null} packBadge={packBadge} />}>
           <CurrentTabBar packBadge={packBadge} />
@@ -43,9 +43,9 @@ export function BottomNav({ packBadge }: { packBadge?: ReactNode }) {
 
       <nav
         aria-label="Main"
-        className="fixed inset-y-0 left-0 z-20 hidden w-sidebar flex-col border-r border-hairline bg-surface px-4 pt-8 pb-6 lg:flex"
+        className="glass fixed inset-y-0 left-0 z-20 hidden w-sidebar flex-col border-r-[1.5px] border-edge bg-surface px-4 pt-8 pb-6 shadow-card lg:flex"
       >
-        <p className="bubble-title mb-8 px-2 text-3xl">reydiantfinds</p>
+        <p className="wordmark mb-8 px-2 text-[30px]">reydiantfinds</p>
         <Suspense fallback={<SideLinks pathname={null} packBadge={packBadge} />}>
           <CurrentSideLinks packBadge={packBadge} />
         </Suspense>
@@ -88,7 +88,7 @@ function TabLink({ link, active, badge }: { link: NavLink; active: boolean; badg
         aria-current={active ? "page" : undefined}
         className="group flex flex-1 flex-col items-center justify-center gap-0.5"
       >
-        <span className="flex h-9 w-14 items-center justify-center rounded-pill border-2 border-edge bg-accent gloss text-on-accent shadow-candy transition-transform duration-150 ease-out-expo group-active:scale-90">
+        <span className="-mt-5 flex size-13 items-center justify-center rounded-pill border-2 border-edge bg-orb gloss text-on-accent shadow-candy transition-transform duration-150 ease-out-expo group-active:scale-90">
           <Icon size={22} />
         </span>
         <span className={`text-[11px] font-semibold ${active ? link.ink : "text-muted"}`}>{link.label}</span>
@@ -123,7 +123,7 @@ function SideLinks({ pathname, packBadge }: { pathname: string | null } & BadgeP
               aria-current={active ? "page" : undefined}
               className={
                 primary
-                  ? "my-2 flex min-h-touch items-center gap-3 rounded-pill border-2 border-edge bg-accent gloss px-4 font-semibold text-on-accent shadow-candy"
+                  ? "my-2 flex min-h-touch items-center gap-3 rounded-pill border-[1.5px] border-edge bg-candy gloss px-4 font-extrabold text-on-accent shadow-candy"
                   : `flex min-h-touch items-center gap-3 rounded-pill px-4 font-semibold transition-colors ${
                       active ? `bg-surface-raised shadow-pearl ${ink}` : "text-muted hover:bg-surface-raised hover:text-text"
                     }`

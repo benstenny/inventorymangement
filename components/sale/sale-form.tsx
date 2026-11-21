@@ -189,7 +189,7 @@ export function SaleForm({ item, feePresets }: Props) {
         </Field>
         {handedOver ? (
           <div className="flex flex-col gap-1.5">
-            <p className="text-[15px] font-semibold text-ink-pink">Shipping</p>
+            <p className="text-[15px] font-semibold text-ink-violet">Shipping</p>
             <p className="flex min-h-touch items-center text-[15px] text-muted">None, handed over</p>
           </div>
         ) : (
@@ -228,7 +228,7 @@ export function SaleForm({ item, feePresets }: Props) {
       <section aria-live="polite" className={`${groupClass} px-4 py-3.5`}>
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="text-[17px] font-semibold">Profit</h2>
-          <p className={`tabular text-[28px] leading-none font-extrabold ${profit < 0 ? "text-danger" : "text-ink-pink"}`}>
+          <p className={`tabular text-[28px] leading-none font-extrabold ${profit < 0 ? "text-danger" : "text-ink-violet"}`}>
             {formatCents(profit)}
           </p>
         </div>
@@ -271,7 +271,7 @@ function SoldMessage({ sold, stillListed }: { sold: NonNullable<MarkSoldState["s
           <GelTick draw className="text-ink-aqua" size={24} />
           Sold for {formatCents(sold.soldPrice)}
         </p>
-        <p className={`tabular mt-3 text-[34px] leading-none font-extrabold ${sold.profit < 0 ? "text-danger" : "text-ink-pink"}`}>
+        <p className={`tabular mt-3 text-[34px] leading-none font-extrabold ${sold.profit < 0 ? "text-danger" : "text-ink-violet"}`}>
           {formatCents(sold.profit)}
         </p>
         <p className="mt-1 text-[15px] text-muted">profit after what you paid, fees and shipping</p>

@@ -495,11 +495,11 @@ function PriceHint({ lowest, listAt }: { lowest: number; listAt: number }) {
     <p className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[15px] text-muted">
       <span>
         Lowest to take{" "}
-        <span className="tabular text-[17px] font-extrabold text-ink-pink">{formatCents(lowest, { whole: true })}</span>
+        <span className="tabular text-[17px] font-extrabold text-ink-violet">{formatCents(lowest, { whole: true })}</span>
       </span>
       <span>
         List at{" "}
-        <span className="tabular text-[17px] font-extrabold text-ink-pink">{formatCents(listAt, { whole: true })}+</span>
+        <span className="tabular text-[17px] font-extrabold text-ink-violet">{formatCents(listAt, { whole: true })}+</span>
       </span>
     </p>
   );
